@@ -1,0 +1,10 @@
+.makerating-box {
+    display: flex;
+    width: 30vw;
+    background-color: #D8BEAB;
+    border-radius: 15px;
+}
+
+.makerating-box img {
+    width: 2.5vw;
+}
