@@ -1,0 +1,16 @@
+.recently-box {
+    color: white;
+    align-items: center;
+}
+
+.img-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+}
+
+.recent-img {
+    width: 10vw;
+    border-radius: 5%;
+}
