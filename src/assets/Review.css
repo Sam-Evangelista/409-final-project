@@ -1,0 +1,51 @@
+.review-box {
+    background-color: #D8BEAB;
+    width: 55vw;
+    margin-left: 3vw;
+    border-radius: 5px;
+    padding: 20px;
+    display: flex;
+    color: #4D2727;
+}
+
+.title-box {
+    text-align: left;
+}
+
+.album-box {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.album-img {
+    width: 20vw;
+    z-index: 2;
+}
+
+.vinyl-img {
+    width: 20vw;
+    animation: spin 4s linear infinite;
+    position: relative;
+    left: -10vw;
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+    
+}
+
+.rater-img {
+    width: 10vw;
+    border-radius: 50%;
+    margin-right: 20px;
+}
+
+.heart {
+    width: 2vw;
+}
