@@ -1,4 +1,5 @@
 import '../assets/Header.css';
+import { Link } from 'react-router';
 
 function Header () {
     return (
@@ -7,8 +8,12 @@ function Header () {
             <h1>RecorDB</h1>
             
             <div className='header-right'>
-                <h2>Sign In!</h2>
-                <img className='user' src="https://cdn-icons-png.flaticon.com/512/1144/1144760.png"/>            
+                <Link to ='/login'>
+                    <h2>Sign In!</h2>
+                </Link>
+                <Link to='/login'>
+                    <img className='user' src="https://cdn-icons-png.flaticon.com/512/1144/1144760.png"/>            
+                </Link>
             </div>
         </div>
     );
