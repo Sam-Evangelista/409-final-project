@@ -1,0 +1,23 @@
+.header {
+    background-color: #6C4243;
+    display: flex;
+    align-items: center;
+    padding: 20px;
+    color: white;
+    gap: 20px;
+}
+
+.header-right {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.record {
+    width: 5vw;
+}
+
+.user {
+    width: 5vw;
+}
