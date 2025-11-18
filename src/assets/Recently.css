@@ -13,4 +13,5 @@
 .recent-img {
     width: 10vw;
     border-radius: 5%;
+    filter: blur(4px);
 }

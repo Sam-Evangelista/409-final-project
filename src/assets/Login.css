@@ -1,0 +1,28 @@
+.login-box {
+    margin: auto;
+    margin-top: auto;
+    width: 30vw;
+    height: 30vh;
+    background-color: #D8BEAB;
+    border-radius: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.user-icon {
+    width: 5vw;
+    background-color: #E4C8B3;
+    border-color: #A2806D;
+    border-width: 10vw;
+    position: relative;
+    top: -5.5vw;
+    left: 3vw;
+}
+
+.login-box button {
+    background-color: green;
+    width: 10vw;
+    padding: 1vw;
+    border-radius: 5px;
+}

@@ -3,6 +3,7 @@
     width: 30vw;
     background-color: #D8BEAB;
     border-radius: 15px;
+    gap: 2vw;
 }
 
 .makerating-box img {

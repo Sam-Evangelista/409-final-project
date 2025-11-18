@@ -2,4 +2,28 @@
   text-align: center;
 }
 
+.App-container {
+  display: flex;
+  gap: 2vw;
+  margin-left: 3vw;
+  color: white;
+}
+
+.blur-text {
+  /* color: transparent; */
+  filter: blur(4px);
+  /* text-shadow: 0 0 5px rgba(255, 255, 255, 0.5); */
+}
+
+.columns {
+  display: flex;
+  flex-direction: row;
+  gap: 20vw;
+}
+
+.rating-alignment {
+  position: fixed;
+  bottom: 1.5vw;
+  right: 1.5vw;
+}
 
