@@ -18,7 +18,7 @@
 .columns {
   display: flex;
   flex-direction: row;
-  gap: 20vw;
+  gap: 10vw;
 }
 
 .rating-alignment {
