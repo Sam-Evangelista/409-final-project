@@ -9,10 +9,10 @@ function Review() {
             <img className='vinyl-img' src='https://pngimg.com/d/vinyl_PNG18.png'/>
         </div>
         <div className="title-box">
-        <h1>Debi Tirar Mas Fotos</h1>
-        <h2>Bad Bunny</h2>
-        <p>Stars</p>
-        <img className='heart' src='https://cdn-icons-png.flaticon.com/256/1077/1077035.png'/>
+          <h1>Debi Tirar Mas Fotos</h1>
+          <h2>Bad Bunny</h2>
+          <p>Stars</p>
+          <img className='heart' src='https://cdn-icons-png.flaticon.com/256/1077/1077035.png'/>
         </div>
 
         <div>

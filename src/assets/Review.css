@@ -10,6 +10,9 @@
 
 .title-box {
     text-align: left;
+    width: 35vw;
+    position: relative;
+    left: -5vw;
 }
 
 .album-box {
