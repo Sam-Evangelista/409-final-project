@@ -1,0 +1,64 @@
+.profile-img {
+    width: 150px;
+    height: 150px;
+    border-radius: 30%;
+    object-fit: cover;
+}
+
+.profile-box {
+    display: flex;
+    gap: 2vw;
+    margin-left: 5vw;
+    color: white;
+}
+
+.profile-icon {
+    width: 40px;
+}
+
+.profile-icons {
+    display: flex;
+    gap: 0.5vw;
+}
+
+.rectangle {
+    width: 50%;
+    height: 25px;
+    background-color: #E4C8B3;
+    margin-top: 1vh;
+    /* box-shadow: 5px 5px; */
+}
+
+.top-spacing {
+    /* margin-top: 2vh; */
+    display: flex;
+    gap: 2vw;
+    /* justify-content: space-evenly; */
+}
+
+.top-album {
+    width: 10vw;
+}
+
+.top-columns {
+    display: flex;
+    gap: 5vw;
+}
+
+.top-artists {
+    display: flex;
+    width: 20vw;
+    background-color: #E4C8B3;
+    gap: 2vw;
+    border-radius: 5px;
+}
+
+.top-artists img {
+    width: 5vw;
+}
+
+.top-artist-container {
+    display: flex;
+    flex-direction: column;
+    gap: 2vh;
+}

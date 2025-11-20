@@ -4,8 +4,13 @@ import { Link } from 'react-router';
 function Header () {
     return (
         <div className="header">
-            <img className='record' src="https://pngimg.com/d/vinyl_PNG18.png"/>
-            <h1>RecorDB</h1>
+            <Link to='/'>
+                <img className='record' src="https://pngimg.com/d/vinyl_PNG18.png"/>
+            </Link>
+            
+            <Link to='/'>
+                <h1>RecorDB</h1>
+            </Link>
             
             <div className='header-right'>
                 <Link to ='/login'>
