@@ -1,0 +1,30 @@
+GET http://localhost:8000/ratings
+
+###
+GET http://localhost:8000/ratings/691fe1f7806e354f776b7abb
+
+
+###
+POST http://localhost:8000/ratings
+Content-Type: application/json
+
+{
+    "username": "cmonz2",
+    "album": "The Dark Side of the Moon",
+    "rating": 5,
+    "review": "An absolute masterpiece with timeless tracks.",
+    "artist": "Pink Floyd"
+}
+
+###
+DELETE http://localhost:8000/ratings/691fe1f7806e354f776b7abb
+
+
+###
+PATCH http://localhost:8000/ratings/691fe5c605bc546f523b3ff0
+Content-Type: application/json
+
+{
+    "rating": 4,
+    "review": "Still a great album, but not as perfect as I remembered."
+}
