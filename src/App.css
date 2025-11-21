@@ -27,3 +27,8 @@
   right: 1.5vw;
 }
 
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
