@@ -82,13 +82,16 @@ router.get('/callback', (req, res) => {
     const refresh_token = body.refresh_token;
 
     // For now, just send them back so you can see it works
-    res.json({
-      access_token,
-      token_type,
-      scope,
-      expires_in,
-      refresh_token
-    });
+    // res.json({
+    //   access_token,
+    //   token_type,
+    //   scope,
+    //   expires_in,
+    //   refresh_token
+    // });
+
+    const frontendRedirect = `http://127.0.0.1:3000/user?access_token=${access_token}`;
+    res.redirect(frontendRedirect);
   });
 });
 
