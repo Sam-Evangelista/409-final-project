@@ -1,8 +1,38 @@
 import Header from "../components/Header";
 import '../assets/Profile.css';
-import { Link } from "react-router";
+import { Link, useLocation } from "react-router";
+import { useEffect, useState } from "react";
+import axios from "axios";
 
 function Profile () {
+    const [user, setUser] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+
+    const search = window.location.search;
+    const params = new URLSearchParams(search);
+    const accessToken = params.get('access_token');
+
+    useEffect(() => {
+        if (!accessToken) {
+          console.log("No access token found");
+          return;
+        }
+    
+        axios.get("http://127.0.0.1:8000/spotify/me", {
+          headers: {
+            Authorization: `Bearer ${accessToken}`
+          }
+        })
+        .then(res => {
+            setUser(res.data);
+          console.log("Spotify /me response:", res.data);   // THIS LOGS THE JSON
+        })
+        .catch(err => {
+          console.error("Error fetching /me:", err);
+        });
+      }, [accessToken]);
+
     return (
         <div>
             <Header/>
@@ -11,7 +41,7 @@ function Profile () {
             <div className="profile-top">
                 <div className="profile-box">
                     <div>
-                        <img className="profile-img" src="https://media.licdn.com/dms/image/v2/D5603AQEQwus3EcW9mA/profile-displayphoto-crop_800_800/B56Zh4BQQ_G0AM-/0/1754360251937?e=1765411200&v=beta&t=SCp2lexLySZ_eP263vL5ZIzZmbpzZ5BUgYq5AK7F4MA"/>
+                        <img className="profile-img" src={user?.images[0].url}/>
                         <div className="profile-icons">
                             <img className="profile-icon" src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/84/Spotify_icon.svg/250px-Spotify_icon.svg.png"/>
                             <img className="profile-icon" src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5f/Apple_Music_icon.svg/2048px-Apple_Music_icon.svg.png"/>
@@ -21,7 +51,7 @@ function Profile () {
                     </div>
 
                     <div>
-                        <h1>mayaajit</h1>
+                        <h1>{user?.display_name || "Loading..."}</h1>
                         <h2>25 Followers 27 Following</h2>
                         <h2>uiuc cs '27</h2>
                     </div>
@@ -30,7 +60,7 @@ function Profile () {
                 <div>
                     <div className="ratings-box">
                         <Link to='/user/ratings'>
-                            <h1>Maya's Ratings</h1>
+                            <h1>{user?.display_name || "Loading..."}'s Ratings</h1>
                         </Link>
                         <Link to='/user/ratings'>
                             <img className="ratings-icon" src="https://icons.veryicon.com/png/o/miscellaneous/rookie-30-official-icon-library/button-arrow-right-1.png"/>

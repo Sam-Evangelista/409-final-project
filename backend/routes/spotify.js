@@ -41,8 +41,6 @@ router.get('/callback', (req, res) => {
     return res.status(400).json({ error: 'missing_code' });
   }
 
-  // You *could* do a proper state check with cookies/session.
-  // For now, just make sure it's present:
   if (state === null) {
     return res.status(400).json({ error: 'state_mismatch' });
   }
@@ -81,17 +79,50 @@ router.get('/callback', (req, res) => {
     const expires_in = body.expires_in;
     const refresh_token = body.refresh_token;
 
-    // For now, just send them back so you can see it works
-    // res.json({
-    //   access_token,
-    //   token_type,
-    //   scope,
-    //   expires_in,
-    //   refresh_token
-    // });
-
     const frontendRedirect = `http://127.0.0.1:3000/user?access_token=${access_token}`;
     res.redirect(frontendRedirect);
+  });
+});
+
+router.get('/me', (req, res) => {
+  // Option 1: from query string: /spotify/me?access_token=...
+  let access_token = req.query.access_token;
+
+  // Option 2: from Authorization header: "Bearer <token>"
+  if (!access_token && req.headers.authorization) {
+    const parts = req.headers.authorization.split(' ');
+    if (parts[0] === 'Bearer' && parts[1]) {
+      access_token = parts[1];
+    }
+  }
+
+  if (!access_token) {
+    return res.status(400).json({ error: 'missing_access_token' });
+  }
+
+  const options = {
+    url: 'https://api.spotify.com/v1/me',
+    headers: {
+      'Authorization': 'Bearer ' + access_token
+    },
+    json: true
+  };
+
+  request.get(options, (error, response, body) => {
+    if (error) {
+      console.error('Error calling /me:', error);
+      return res.status(500).json({ error: 'spotify_request_failed' });
+    }
+
+    if (response.statusCode !== 200) {
+      console.error('Spotify /me error:', body);
+      return res
+        .status(response.statusCode)
+        .json({ error: 'spotify_api_error', details: body });
+    }
+
+    // Success: send Spotify's user object back to your frontend
+    res.json(body);
   });
 });
 
