@@ -15,4 +15,7 @@ app.use(express.json())
 const ratingsRouter = require('./routes/ratings')
 app.use('/ratings', ratingsRouter)
 
+const spotifyRouter = require('./routes/spotify')
+app.use('/spotify', spotifyRouter)
+
 app.listen(8000, () => console.log('Server is running on port 8000'))
