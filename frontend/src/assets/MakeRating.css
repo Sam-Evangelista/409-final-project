@@ -1,12 +1,14 @@
 .makerating-box {
     display: flex;
-    width: 30vw;
+    width: 27.5vw;
     background-color: #D8BEAB;
     border-radius: 15px;
-    gap: 2vw;
+    gap: 1.5vw;
+    align-items: center;
+    justify-content: center;
 }
 
 .makerating-box img {
     width: 2vw;
-    /* margin */
+    object-fit: contain;
 }
