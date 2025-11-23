@@ -119,17 +119,17 @@ function Profile () {
                 <div className="top-artist-container">
                     <h1>Top Artists</h1>
                     {topArtists.map((artist, index) => (
-                        <div className="top-artists" key={index}>
-                        <img src={artist.images[0].url} alt={artist.name} />
-                        <h1>{artist.name}</h1>
-                    </div>
+                        <div className="top-artists" key={index} onClick={() => window.open(artist.external_urls.spotify, "_blank")}>
+                            <img src={artist.images[0].url} alt={artist.name} />
+                            <h1>{artist.name}</h1>
+                        </div>
                     ))}
                 </div>
 
                 <div className="top-artist-container">
                     <h1>Top Songs</h1>
                     {topTracks.map((track, index) => (
-                    <div className="top-artists" key={index}>
+                    <div className="top-artists" key={index} onClick={() => window.open(track.external_urls.spotify, "_blank")}>
                         <img src={track.album.images[0].url} alt={track.name} />
                         <h1>{track.name.substring(0,12)}</h1>
                     </div>

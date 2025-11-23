@@ -86,3 +86,8 @@
     flex-direction: column;
     gap: 2vh;
 }
+
+.top-artists :hover {
+    /* background-color: #D1AFA0; */
+    cursor: pointer;
+}
