@@ -8,6 +8,8 @@ function Profile () {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [topArtists, setTopArtists] = useState([]);
+    const [topTracks, setTopTracks] = useState([]);
 
     const search = window.location.search;
     const params = new URLSearchParams(search);
@@ -30,6 +32,27 @@ function Profile () {
         .catch(err => {
             console.error("Error fetching /me:", err);
         });
+
+        // Top artists
+        axios.get("http://127.0.0.1:8000/spotify/top/artists", {
+            headers: { Authorization: `Bearer ${accessToken}` }
+        })
+        .then(res => {
+            console.log("Top artists:", res.data);
+            setTopArtists(res.data.items || []);
+        })
+        .catch(err => console.error("Error fetching top artists:", err));
+
+        // Top tracks
+        axios.get("http://127.0.0.1:8000/spotify/top/tracks", {
+            headers: { Authorization: `Bearer ${accessToken}` }
+        })
+        .then(res => {
+            console.log("Top tracks:", res.data);
+            setTopTracks(res.data.items || []);
+        })
+        .catch(err => console.error("Error fetching top tracks:", err));
+
       }, [accessToken]);
 
     return (
@@ -95,42 +118,23 @@ function Profile () {
 
                 <div className="top-artist-container">
                     <h1>Top Artists</h1>
-                    <div className="top-artists">
-                        <img src="https://upload.wikimedia.org/wikipedia/en/9/9b/Tame_Impala_-_Currents.png"/>
-                        <h1>Tame Impala</h1>
+                    {topArtists.map((artist, index) => (
+                        <div className="top-artists" key={index}>
+                        <img src={artist.images[0].url} alt={artist.name} />
+                        <h1>{artist.name}</h1>
                     </div>
-                    <div className="top-artists">
-                        <img src="https://upload.wikimedia.org/wikipedia/en/9/9b/Tame_Impala_-_Currents.png"/>
-                        <h1>Tame Impala</h1>
-                    </div>
-                    <div className="top-artists">
-                        <img src="https://upload.wikimedia.org/wikipedia/en/9/9b/Tame_Impala_-_Currents.png"/>
-                        <h1>Tame Impala</h1>
-                    </div>
-                    <div className="top-artists">
-                        <img src="https://upload.wikimedia.org/wikipedia/en/9/9b/Tame_Impala_-_Currents.png"/>
-                        <h1>Tame Impala</h1>
-                    </div>
+                    ))}
                 </div>
 
                 <div className="top-artist-container">
                     <h1>Top Songs</h1>
-                    <div className="top-artists">
-                        <img src="https://upload.wikimedia.org/wikipedia/en/9/9b/Tame_Impala_-_Currents.png"/>
-                        <h1>Tame Impala</h1>
+                    {topTracks.map((track, index) => (
+                    <div className="top-artists" key={index}>
+                        <img src={track.album.images[0].url} alt={track.name} />
+                        <h1>{track.name.substring(0,12)}</h1>
                     </div>
-                    <div className="top-artists">
-                        <img src="https://upload.wikimedia.org/wikipedia/en/9/9b/Tame_Impala_-_Currents.png"/>
-                        <h1>Tame Impala</h1>
-                    </div>
-                    <div className="top-artists">
-                        <img src="https://upload.wikimedia.org/wikipedia/en/9/9b/Tame_Impala_-_Currents.png"/>
-                        <h1>Tame Impala</h1>
-                    </div>
-                    <div className="top-artists">
-                        <img src="https://upload.wikimedia.org/wikipedia/en/9/9b/Tame_Impala_-_Currents.png"/>
-                        <h1>Tame Impala</h1>
-                    </div>
+                    ))}
+                    
                 </div>
                 
                 

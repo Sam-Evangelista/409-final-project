@@ -21,7 +21,7 @@ function generateRandomString(length) {
 
 router.get('/login', (req, res) => {
   var state = generateRandomString(16);
-  var scope = 'user-read-private user-read-email';
+  var scope = 'user-read-private user-read-email user-top-read';
 
   res.redirect('https://accounts.spotify.com/authorize?' +
     querystring.stringify({
@@ -126,5 +126,49 @@ router.get('/me', (req, res) => {
   });
 });
 
+// GET /spotify/top/:type   where :type is "artists" or "tracks"
+router.get('/top/:type', (req, res) => {
+  let access_token = req.query.access_token;
+
+  if (!access_token && req.headers.authorization) {
+    const parts = req.headers.authorization.split(' ');
+    if (parts[0] === 'Bearer' && parts[1]) {
+      access_token = parts[1];
+    }
+  }
+
+  if (!access_token) {
+    return res.status(400).json({ error: 'missing_access_token' });
+  }
+
+  const type = req.params.type; // "artists" or "tracks"
+  if (!['artists', 'tracks'].includes(type)) {
+    return res.status(400).json({ error: 'invalid_type' });
+  }
+
+  const options = {
+    url: `https://api.spotify.com/v1/me/top/${type}?limit=5&time_range=medium_term`,
+    headers: {
+      Authorization: 'Bearer ' + access_token
+    },
+    json: true
+  };
+
+  request.get(options, (error, response, body) => {
+    if (error) {
+      console.error('Error calling /me/top:', error);
+      return res.status(500).json({ error: 'spotify_request_failed' });
+    }
+
+    if (response.statusCode !== 200) {
+      console.error('Spotify /me/top error:', body);
+      return res
+        .status(response.statusCode)
+        .json({ error: 'spotify_api_error', details: body });
+    }
+
+    res.json(body);
+  });
+});
 
 module.exports = router;
