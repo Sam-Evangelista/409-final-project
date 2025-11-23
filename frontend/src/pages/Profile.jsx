@@ -15,21 +15,20 @@ function Profile () {
 
     useEffect(() => {
         if (!accessToken) {
-          console.log("No access token found");
-          return;
+            console.log("No access token found");
+            return;
         }
     
         axios.get("http://127.0.0.1:8000/spotify/me", {
-          headers: {
-            Authorization: `Bearer ${accessToken}`
-          }
+            headers: {
+                Authorization: `Bearer ${accessToken}`
+            }
         })
         .then(res => {
             setUser(res.data);
-          console.log("Spotify /me response:", res.data);   // THIS LOGS THE JSON
         })
         .catch(err => {
-          console.error("Error fetching /me:", err);
+            console.error("Error fetching /me:", err);
         });
       }, [accessToken]);
 
@@ -37,7 +36,6 @@ function Profile () {
         <div>
             <Header/>
 
-            
             <div className="profile-top">
                 <div className="profile-box">
                     <div>

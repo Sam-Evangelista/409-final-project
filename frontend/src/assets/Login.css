@@ -1,6 +1,6 @@
 .login-box {
     margin: auto;
-    margin-top: auto;
+    margin-top: 40vh;
     width: 30vw;
     height: 30vh;
     background-color: #D8BEAB;
@@ -8,21 +8,31 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    flex-direction: column;
 }
 
 .user-icon {
     width: 5vw;
     background-color: #E4C8B3;
     border-color: #A2806D;
-    border-width: 10vw;
+    border-width: 0.4vw;
+    border-style: solid;
+    border-radius: 5px;
     position: relative;
     top: -5.5vw;
-    left: 3vw;
 }
 
-.login-box button {
-    background-color: green;
-    width: 10vw;
-    padding: 1vw;
+.spotify-button {
+    display: flex;
+    background-color: #1ED760;
+    color: white;
+    width: 12vw;
+    padding: 0.5vw;
     border-radius: 5px;
+    gap: 1vw;
+}
+
+.spotify-img {
+    width: 2.5vw;
+    object-fit: contain;   /* prevents squishing */
 }
