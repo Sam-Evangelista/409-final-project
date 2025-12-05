@@ -1,10 +1,6 @@
 const mongoose = require('mongoose');
 
 const ratingSchema = new mongoose.Schema({
-    id : {
-        type: mongoose.Schema.Types.ObjectId,
-        required: true
-    },
     user_id: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
