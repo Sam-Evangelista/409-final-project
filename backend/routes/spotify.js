@@ -3,6 +3,9 @@ const querystring = require('querystring');
 const router = express.Router();
 const request = require('request');
 
+const authToken = require("../models/authToken")
+const User = require("../models/user")
+
 const client_id = process.env.SPOTIFY_CLIENT_ID;
 const client_secret = process.env.SPOTIFY_CLIENT_SECRET;
 
@@ -33,7 +36,7 @@ router.get('/login', (req, res) => {
     }));
 });
 
-router.get('/callback', (req, res) => {
+router.get('/callback', async (req, res) => {
   const code = req.query.code || null;
   const state = req.query.state || null;
 
@@ -45,43 +48,107 @@ router.get('/callback', (req, res) => {
     return res.status(400).json({ error: 'state_mismatch' });
   }
 
-  const authOptions = {
-    url: 'https://accounts.spotify.com/api/token',
-    form: {
-      code: code,
-      redirect_uri: redirect_uri,
-      grant_type: 'authorization_code'
-    },
-    headers: {
-      'Authorization':
-        'Basic ' +
-        Buffer.from(client_id + ':' + client_secret).toString('base64')
-    },
-    json: true
-  };
+  try {
+    // Step 1: Exchange code for tokens
+    const tokenResponse = await new Promise((resolve, reject) => {
+      const authOptions = {
+        url: 'https://accounts.spotify.com/api/token',
+        form: {
+          code: code,
+          redirect_uri: redirect_uri,
+          grant_type: 'authorization_code'
+        },
+        headers: {
+          'Authorization':
+            'Basic ' +
+            Buffer.from(client_id + ':' + client_secret).toString('base64')
+        },
+        json: true
+      };
 
-  request.post(authOptions, (error, response, body) => {
-    if (error) {
-      console.error('Token request error:', error);
-      return res.status(500).json({ error: 'token_request_failed' });
+      request.post(authOptions, (error, response, body) => {
+        if (error) {
+          return reject(error);
+        }
+        if (response.statusCode !== 200) {
+          return reject(new Error(`Token error: ${response.statusCode}`));
+        }
+        resolve(body);
+      });
+    });
+
+    const { access_token, token_type, scope, expires_in, refresh_token } = tokenResponse;
+
+    // Step 2: Get user profile from Spotify
+    const userProfile = await new Promise((resolve, reject) => {
+      const options = {
+        url: 'https://api.spotify.com/v1/me',
+        headers: {
+          'Authorization': 'Bearer ' + access_token
+        },
+        json: true
+      };
+
+      request.get(options, (error, response, body) => {
+        if (error) {
+          return reject(error);
+        }
+        if (response.statusCode !== 200) {
+          return reject(new Error(`Spotify API error: ${response.statusCode}`));
+        }
+        resolve(body);
+      });
+    });
+    const spotifyId = userProfile.id;
+    const displayName = userProfile.display_name;
+    const icon = userProfile.images?.[0]?.url || null;
+
+    const existing = await User.findOne({spotify_id: spotifyId});
+    
+
+
+    if (!existing) {
+          const user = new User({
+          spotify_id: spotifyId,
+          username: displayName,
+          icon: icon
+      });
+      const saved_user = await user.save(user);
+      const auth_Token = new authToken({
+          user_id: saved_user._id,
+          access_token: access_token,
+          expires_in: expires_in,
+          refresh_token: refresh_token
+      });
+      await auth_Token.save();
+    } else {
+        let atoken = await authToken.findOne({user_id:existing._id});
+        if (!atoken) {
+        // Auth token doesn't exist, create it
+        atoken = new authToken({
+          user_id: existing._id,
+          access_token: access_token,
+          expires_in: expires_in,
+          refresh_token: refresh_token
+        });
+      } else {
+        // Auth token exists, update it
+        atoken.access_token = access_token;
+        atoken.expires_in = expires_in;
+        atoken.refresh_token = refresh_token;
+      }
+        existing.username = displayName;
+        existing.icon = icon;
+        await existing.save();
+        await atoken.save();
     }
-
-    if (response.statusCode !== 200) {
-      console.error('Spotify token response error:', body);
-      return res
-        .status(response.statusCode)
-        .json({ error: 'token_response_error', details: body });
-    }
-
-    const access_token = body.access_token;
-    const token_type = body.token_type;
-    const scope = body.scope;
-    const expires_in = body.expires_in;
-    const refresh_token = body.refresh_token;
-
     const frontendRedirect = `http://127.0.0.1:3000/user?access_token=${access_token}`;
     res.redirect(frontendRedirect);
-  });
+  } catch (error) {
+    console.error('OAuth callback error:', error);
+    res.status(500).json({ error: 'authentication_failed', message: error.message });
+  }
+
 });
 
 router.get('/me', (req, res) => {

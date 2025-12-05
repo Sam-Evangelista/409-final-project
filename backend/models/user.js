@@ -1,6 +1,10 @@
 const mongoose = require('mongoose');
 
 const userSchema = new mongoose.Schema({
+    spotify_id:{
+        type: String,
+        required: true
+    },
     followers: {
         type: [mongoose.Schema.Types.ObjectId],
         default: []
