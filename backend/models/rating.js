@@ -1,6 +1,15 @@
 const mongoose = require('mongoose');
 
 const ratingSchema = new mongoose.Schema({
+    id : {
+        type: mongoose.Schema.Types.ObjectId,
+        required: true
+    },
+    user_id: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        required: true
+    },
     username: {
         type: String,
         required: true
@@ -9,19 +18,31 @@ const ratingSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    rating: {
+    album_id : {
+        type: String,
+        required: true
+    },
+    likes : {
+        type: Number,
+        default: 0
+    },
+    stars: {
         type: Number,
         required: true,
         min: 1,
         max: 5
     },
-    artist: {
-        type: String,
-        required: true
+    comments: {
+        type: [mongoose.Schema.Types.ObjectId],
+        default: []
     },
     review: {
         type: String,
         required: true
+    },
+    tracklist_rating: {
+        type: [String],
+        default: []
     },
     date: {
         type: Date,
