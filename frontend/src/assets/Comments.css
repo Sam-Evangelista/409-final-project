@@ -31,23 +31,32 @@
 
 .comments-list {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     gap: 1rem;
 }
 
 .comment-item {
-    background-color: rgba(255, 255, 255, 0.2);
-    border: 1px solid rgba(77, 39, 39, 0.2);
-    border-radius: 8px;
-    padding: 1rem;
+    background-image: url('https://www.clker.com/cliparts/S/s/t/M/q/E/sticky-note-pink-md.png'); /* sticky note background */
+    background-size: 100% 100%;      
+    background-repeat: no-repeat;
+    background-position: center;
+
+    width: 250px;  
+    height: 250px;  
+
     display: flex;
     flex-direction: column;
-    gap: 0.75rem;
+    justify-content: space-between; 
+    padding: 1rem;
+
+    color: #4D2727;
+    box-sizing: border-box;
+    filter: drop-shadow(4px 4px 6px rgba(0,0,0,0.4));
 }
 
 .comment-header {
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-start;
     align-items: center;
     flex-wrap: wrap;
     gap: 0.5rem;
@@ -86,4 +95,168 @@
     align-items: center;
     gap: 0.25rem;
 }
+
+.comment-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.comment-profile-pic {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    object-fit: cover;
+    justify-self: flex-end;
+}
+
+.comment-profile-pic-small {
+    width: 25px;
+    height: 25px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-right: 0.5rem;
+}
+
+
+/* Modal overlay */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right:0;
+    bottom:0;
+    background: rgba(0,0,0,0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal-content {
+    background-color: #fcc3c9;
+    background-size: cover; /* fill the box */
+    background-position: center;
+    background-repeat: no-repeat;
+    
+    width: 400px;      
+    height: 400px;   
+    
+    padding: 2rem; 
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    position: relative;
+}
+
+
+/* Close button */
+.modal-close {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: #eee;
+    border: none;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+/* Child comments */
+.modal-child-comments {
+    margin-top: 1rem;
+    padding-left: 1rem;
+    border-left: 2px solid #ccc;
+}
+
+.modal-child-comment {
+    margin-bottom: 0.5rem;
+    display:flex;
+    flex-direction: row;
+    align-items:center;
+    justify-content: space-between;
+}
+
+/* Navigation buttons */
+.modal-navigation {
+    margin-top: 1rem;
+    display: flex;
+    justify-content: space-between;
+}
+
+.modal-nav-btn {
+    background: rgba(255,255,255,0.8);
+    border: none;
+    padding: 0.5rem 1rem;
+    font-size: 1.5rem;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background 0.2s;
+}
+
+.modal-nav-btn:hover {
+    background: rgba(255,255,255,1);
+}
+
+
+.modal-nav-btn.prev {
+    left: -2rem;
+}
+
+.modal-nav-btn.next {
+    right: -2rem;
+}
+
+.modal-comment {
+    display:flex;
+    align-items: flex-start;
+    flex-direction: column;
+}
+
+.modal-comment-header {
+    display:flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 1rem;
+}
+
+.modal-child-comments {
+    display: flex;
+    align-items: flex-start;
+    flex-direction: column;
+    background-color: #e4b1b6;
+}
+
+.modal-comment-content {
+    display:flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+.like-btn {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    transition: transform 0.1s ease;
+}
+
+.like-btn:hover {
+    transform: scale(1.1);
+}
+
+.like-btn.liked {
+    color: red;
+}
+
+.reply {
+    display:flex;
+    flex-direction: row;
+}
+
 
