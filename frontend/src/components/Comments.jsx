@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import '../assets/Comments.css';
 import '@fortawesome/fontawesome-free/css/all.min.css';
+import { FaPlus } from "react-icons/fa";
 
 
 function Comments({ ratingId, commentIds = [] }) {
@@ -8,6 +9,8 @@ function Comments({ ratingId, commentIds = [] }) {
     const [loading, setLoading] = useState(false);
     const [modalOpen, setModalOpen] = useState(false);
     const [activeIndex, setActiveIndex] = useState(0);
+    const [newCommentText, setNewCommentText] = useState('');
+    const [addCommentModal, setAddCommentModal] = useState(false); // For adding a new comment
 
     // Fetch comments (placeholder for backend API)
     useEffect(() => {
@@ -78,11 +81,38 @@ function Comments({ ratingId, commentIds = [] }) {
 
     if (loading) return <div className="comments-loading">Loading comments...</div>;
 
+    const handleAddComment = () => {
+        if (!newCommentText.trim()) return;
+
+        const newComment = {
+            _id: `new-${Date.now()}`,
+            username: 'You',
+            comment_body: newCommentText,
+            likes: 0,
+            isLiked: false,
+            date: new Date(),
+            child_comments: [],
+        };
+
+        setComments((prev) => [...prev, newComment]);
+        setNewCommentText('');
+        setAddCommentModal(false);
+    };
+
     if (!comments || comments.length === 0) {
         return (
             <div className="comments-section">
                 <h3 className="comments-title">Comments</h3>
                 <p className="comments-empty">No comments yet. Be the first to comment!</p>
+                <div className="add-comment-box">
+                    <input
+                        type="text"
+                        placeholder="Add a comment..."
+                        value={newCommentText}
+                        onChange={(e) => setNewCommentText(e.target.value)}
+                    />
+                    <button onClick={handleAddComment}>Post</button>
+                </div>
             </div>
         );
     }
@@ -114,10 +144,35 @@ function Comments({ ratingId, commentIds = [] }) {
                         </div>
                     </div>
                 ))}
+                <button
+                    className="add-comment-btn"
+                    onClick={() => setAddCommentModal(true)}
+                >
+                <FaPlus size={70} color="#4D2727" />
+            </button>
             </div>
 
+    
+
+            {/* Add Comment Modal */}
+            {addCommentModal && (
+                <div className="modal-overlay" onClick={() => setAddCommentModal(false)}>
+                    <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+                        <button className="modal-close" onClick={() => setAddCommentModal(false)}>X</button>
+                        <h4 className='new-comment-title'>Add a New Comment</h4>
+                        <textarea className='new-comment-text'
+                            placeholder="Write your comment..."
+                            value={newCommentText}
+                            onChange={(e) => setNewCommentText(e.target.value)}
+                            rows={4}
+                        />
+                        <button onClick={handleAddComment} className="submit-comment-btn">Post</button>
+                    </div>
+                </div>
+            )}
+
             {/* Modal */}
-            {modalOpen && (
+            {modalOpen && activeComment && (
                 <div className="modal-overlay" onClick={closeModal}>
                     <div className="modal-content" onClick={(e) => e.stopPropagation()}>
                         <button className="modal-close" onClick={closeModal}>X</button>
