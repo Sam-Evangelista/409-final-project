@@ -10,15 +10,25 @@ const reorder = (list, startIndex, endIndex) => {
     return result;
 };
 
-export default function TracklistRanking({ tracks = [], onReorder }) {
+export default function TracklistRanking({ tracks = [], onReorder, readOnly = false, initialOrder = [] }) {
     const [items, setItems] = useState(tracks);
 
     // Update items when tracks prop changes
     useEffect(() => {
         if (tracks.length > 0) {
-            setItems(tracks);
+            if (readOnly && initialOrder.length > 0) {
+                // Sort tracks according to initialOrder (tracklist_rating)
+                const orderedTracks = initialOrder
+                    .map(trackId => tracks.find(t => t.id === trackId))
+                    .filter(track => track !== undefined);
+                // Add any tracks not in initialOrder at the end
+                const remainingTracks = tracks.filter(t => !initialOrder.includes(t.id));
+                setItems([...orderedTracks, ...remainingTracks]);
+            } else {
+                setItems(tracks);
+            }
         }
-    }, [tracks]);
+    }, [tracks, readOnly, initialOrder]);
 
     const onDragEnd = (result) => {
         // dropped outside the list
@@ -45,6 +55,29 @@ export default function TracklistRanking({ tracks = [], onReorder }) {
             <div className="tracklist-ranking-container">
                 <h3 className="tracklist-title">Tracklist Ranking</h3>
                 <p className="tracklist-empty">No tracks available</p>
+            </div>
+        );
+    }
+
+    if (readOnly) {
+        return (
+            <div className="tracklist-ranking-container">
+                <h3 className="tracklist-title">Tracklist Ranking</h3>
+                <div className="tracklist-dropzone read-only">
+                    {items.map((track, index) => (
+                        <div key={track.id} className="track-item read-only">
+                            <div className="track-rank">{index + 1}</div>
+                            <div className="track-info">
+                                <div className="track-name">{track.name}</div>
+                                {track.duration_ms && (
+                                    <div className="track-duration">
+                                        {formatDuration(track.duration_ms)}
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    ))}
+                </div>
             </div>
         );
     }

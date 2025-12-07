@@ -18,8 +18,17 @@
 .columns {
   display: flex;
   flex-direction: row;
-  gap: 10vw;
+  gap: 3vw;
 }
+
+.column-1 {
+  flex: 3;    /* takes up 3x space */
+}
+
+.column-2 {
+  flex: 1;    /* takes up 1x space */
+}
+
 
 .rating-alignment {
   position: fixed;
