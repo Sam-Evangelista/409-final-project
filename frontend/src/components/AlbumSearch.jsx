@@ -1,0 +1,96 @@
+import React, { useState, useEffect, useRef } from "react";
+
+export default function AlbumSearch({ accessToken, onAlbumSelect }) {
+  const [query, setQuery] = useState("");
+  const [results, setResults] = useState([]);
+  const [showDropdown, setShowDropdown] = useState(false);
+
+  const timeoutRef = useRef(null);
+  const containerRef = useRef(null);
+
+  // Hide dropdown when clicking outside
+  useEffect(() => {
+    function handleClickOutside(e) {
+      if (containerRef.current && !containerRef.current.contains(e.target)) {
+        setShowDropdown(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  // Debounced Spotify search
+  useEffect(() => {
+    if (!query.trim()) {
+      setResults([]);
+      return;
+    }
+
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
+
+    timeoutRef.current = setTimeout(async () => {
+      const res = await fetch(
+        `https://api.spotify.com/v1/search?q=${encodeURIComponent(
+          query
+        )}&type=album&limit=5`,
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        }
+      );
+
+      const data = await res.json();
+      setResults(data.albums?.items || []);
+      setShowDropdown(true);
+    }, 300);
+
+    return () => clearTimeout(timeoutRef.current);
+  }, [query, accessToken]);
+
+  return (
+    <div ref={containerRef} className="album-search-container">
+      {/* Search Box Container */}
+      <div className="album-search-box">
+        <input
+          type="text"
+          placeholder="Search for an album..."
+          className="album-search-input"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          onFocus={() => query && setShowDropdown(true)}
+        />
+      </div>
+
+      {/* Dropdown Results */}
+      {showDropdown && results.length > 0 && (
+        <ul className="album-search-dropdown">
+          {results.map((album) => (
+            <li
+              key={album.id}
+              onClick={() => {
+                onAlbumSelect && onAlbumSelect(album);
+                setShowDropdown(false);
+                setQuery(album.name);
+              }}
+              className="album-search-item"
+            >
+              <img
+                src={album.images?.[2]?.url || album.images?.[0]?.url}
+                alt={album.name}
+                className="album-search-image"
+              />
+              <div className="album-search-info">
+                <p className="album-search-name">{album.name}</p>
+                <p className="album-search-artist">
+                  {album.artists.map((a) => a.name).join(", ")}
+                </p>
+                <p className="album-search-year">{album.release_date.split('-')[0]}</p>
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}

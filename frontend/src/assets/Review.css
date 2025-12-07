@@ -1,54 +1,175 @@
-.review-box {
+.review {
     background-color: #D8BEAB;
-    width: 70vw;
+    width: 100%;
     margin-left: 3vw;
     border-radius: 5px;
     padding: 20px;
-    display: flex;
-    color: #4D2727;
+
 }
 
-.title-box {
-    text-align: left;
-    width: 35vw;
-    position: relative;
-    left: -5vw;
+
+/* REVIEW BOX → everything in one row */
+.review-box {
+    display: flex;            
+    flex-direction: row;      
+    justify-content: flex-start;
+    align-items: flex-start;
+    color: #4D2727;
+    padding: 1rem;
+    gap: 0.5rem;
+}
+
+.left-side {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    flex: 1;    
+    min-width: 0; 
+}
+
+.right-side {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    flex: 1;   
+    min-width: 0;
+}
+
+.review-content-section {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-left: 1rem;
+    min-width: 0;
+}
+
+
+.review-details {
+    display: flex;
+    flex-direction: column;     
+    width:100%
 }
 
 .album-box {
     display: flex;
+    flex-direction: row;
+    gap: 0.5rem;
     align-items: center;
-    margin-bottom: 20px;
 }
 
 .album-img {
-    width: 20vw;
-    z-index: 2;
+    width: 15vw;
+    z-index:2;
 }
 
 .vinyl-img {
-    width: 20vw;
+    width: 12vw;
     animation: spin 4s linear infinite;
     position: relative;
-    left: -10vw;
+    left: -6vw;
+}
+
+
+/* TRACKLIST SECTION → sits on the right */
+.tracklist-section {
+    flex: 1;                  
+    min-width: 18vw;
+}
+
+
+/* COMMENTS always full width (NOT inside the row) */
+.review-comments-section {
+    width: 100%;
+    margin-top: 1rem;
+
+    display: block;         
+}
+
+.title-box {
+    text-align: left;
+    width: 100%;
+    position: relative;
+    left: 0;               
+    margin-bottom: 1rem;
 }
 
 @keyframes spin {
-    from {
-        transform: rotate(0deg);
-    }
-    to {
-        transform: rotate(360deg);
-    }
-    
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
 }
 
 .rater-img {
-    width: 10vw;
+    width: 7vw;           
     border-radius: 50%;
-    margin-right: 20px;
+    margin-right: 10px;
 }
 
 .heart {
-    width: 2vw;
+    width: 1.4vw;        
+}
+
+.rater-info {
+    display: flex;
+    align-self: flex-end;
+    gap: 0.5rem;
+}
+
+.review-text-section {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.review-text-label {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin: 0;
+}
+
+.review-text {
+    font-size: 0.9rem;
+    padding: 0.8rem;
+    line-height: 1.4;
+    background-color: rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+}
+
+.review-tracklist-section {
+    width: 70%;
+    margin-top: 0.5rem;
+    align-self:flex-end;
+
+}
+.review-comments-section {
+    width: 100%;
+    margin-top: 0.5rem;
+}
+
+.review-no-tracks {
+    text-align: center;
+    padding: 0.5rem;
+    font-style: italic;
+    opacity: 0.7;
+}
+
+.stars-display {
+    margin: 0.25rem 0;
+}
+
+.likes-display {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    margin-top: 0.3rem;
+}
+
+.likes-display span {
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.info {
+    display:flex;
+    flex-direction: row;
 }

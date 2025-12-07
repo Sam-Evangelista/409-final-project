@@ -1,0 +1,442 @@
+.rating-creator-page {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: calc(100vh - 100px);
+    padding: 2rem;
+    overflow: visible;
+    position: relative;
+}
+
+.rating-creator-container {
+    background-color: #D8BEAB;
+    border-radius: 20px;
+    padding: 3rem;
+    width: 100%;
+    max-width: 900px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    overflow: visible;
+    box-sizing: border-box;
+    position: relative;
+}
+
+.rating-creator-title {
+    color: white;
+    font-size: 2.5rem;
+    font-weight: bold;
+    margin: 0;
+    text-align: center;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+
+/* AlbumSearch Component Styles */
+.album-search-container {
+    position: relative;
+    width: 100%;
+    z-index: 10;
+    overflow: visible;
+}
+
+.album-search-box {
+    background-color: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    border-radius: 12px;
+    padding: 1rem;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+}
+
+.album-search-input {
+    width: 100%;
+    padding: 1rem 1.25rem;
+    border-radius: 10px;
+    background-color: rgba(255, 255, 255, 0.15);
+    color: white;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    box-sizing: border-box;
+}
+
+.album-search-input::placeholder {
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.album-search-input:focus {
+    outline: none;
+    background-color: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.5);
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.1);
+}
+
+/* Dropdown styling */
+.album-search-dropdown {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: calc(100% + 0.5rem);
+    background-color: rgba(255, 255, 255, 0.95);
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+    max-height: 400px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    z-index: 1000;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.album-search-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.album-search-item:last-child {
+    border-bottom: none;
+}
+
+.album-search-item:hover {
+    background-color: rgba(216, 190, 171, 0.3);
+}
+
+.album-search-image {
+    width: 48px;
+    height: 48px;
+    border-radius: 8px;
+    object-fit: cover;
+    flex-shrink: 0;
+}
+
+.album-search-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.album-search-name {
+    color: #333;
+    font-weight: 600;
+    margin: 0 0 0.25rem 0;
+    font-size: 1rem;
+}
+
+.album-search-artist {
+    color: #666;
+    margin: 0;
+    font-size: 0.875rem;
+}
+
+.album-search-year {
+    color: #666;
+    margin: 0;
+    font-size: 0.875rem;
+}
+
+/* Album Review View Styles */
+.album-review-view {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    gap: 2rem;
+    align-items: stretch;
+    box-sizing: border-box;
+    overflow: visible;
+    position: relative;
+    min-height: 600px;
+}
+
+.album-rating-section {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    min-width: 0;
+    box-sizing: border-box;
+}
+
+.tracklist-section {
+    flex: 0 0 350px;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    max-width: 350px;
+    box-sizing: border-box;
+    height: 100%;
+}
+
+.tracklist-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    overflow-x: hidden;
+    min-height: 0;
+    margin-bottom: 1rem;
+}
+
+.user-profile-img {
+    width: 150px;
+    height: 150px;
+    border-radius: 30%;
+    object-fit: cover;
+    align-self: center;
+    margin-top: calc(0.75rem * 2 + 1rem + 2rem); /* back-button padding (top+bottom) + approximate line-height + gap */
+    margin-bottom: 1rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    flex-shrink: 0;
+}
+
+.back-button {
+    background-color: rgba(255, 255, 255, 0.2);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border-radius: 10px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    align-self: flex-start;
+    font-weight: 500;
+}
+
+.back-button:hover {
+    background-color: rgba(255, 255, 255, 0.3);
+    border-color: rgba(255, 255, 255, 0.5);
+    transform: translateX(-2px);
+}
+
+.album-info-section {
+    display: flex;
+    gap: 2rem;
+    align-items: flex-start;
+    padding: 1.5rem;
+    background-color: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    border-radius: 16px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.album-cover-large {
+    width: 200px;
+    height: 200px;
+    border-radius: 12px;
+    object-fit: cover;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+    flex-shrink: 0;
+}
+
+.album-details {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.album-title {
+    color: white;
+    font-size: 2rem;
+    font-weight: bold;
+    margin: 0;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+    line-height: 1.2;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    hyphens: auto;
+}
+
+.album-artist {
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 1.25rem;
+    margin: 0;
+    font-weight: 500;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+}
+
+.album-year {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 1rem;
+    margin: 0.25rem 0 0 0;
+    font-weight: 400;
+}
+
+.rating-section {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.rating-label {
+    color: white;
+    font-size: 1.25rem;
+    font-weight: 600;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.stars-container {
+    display: flex;
+    align-items: center;
+    min-height: 50px;
+}
+
+.stars-container svg {
+    display: inline-block;
+}
+
+.review-section {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.review-label {
+    color: white;
+    font-size: 1.25rem;
+    font-weight: 600;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.review-input {
+    width: 100%;
+    padding: 1.25rem;
+    border-radius: 12px;
+    background-color: rgba(255, 255, 255, 0.15);
+    color: white;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    font-size: 1rem;
+    font-family: inherit;
+    resize: vertical;
+    min-height: 150px;
+    transition: all 0.3s ease;
+    box-sizing: border-box;
+}
+
+.review-input::placeholder {
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.review-input:focus {
+    outline: none;
+    background-color: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.5);
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.1);
+}
+
+.tracklist-loading {
+    color: rgba(255, 255, 255, 0.7);
+    text-align: center;
+    padding: 2rem;
+    font-style: italic;
+}
+
+.submit-button {
+    background-color: rgba(255, 255, 255, 0.2);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    color: white;
+    padding: 1rem 2rem;
+    border-radius: 12px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin: 1rem 0;
+    align-self: center;
+    min-width: 150px;
+    flex-shrink: 0;
+}
+
+.submit-button:hover {
+    background-color: rgba(255, 255, 255, 0.3);
+    border-color: rgba(255, 255, 255, 0.5);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.submit-button:active {
+    transform: translateY(0);
+}
+
+.tracklist-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    overflow-x: hidden;
+    min-height: 0;
+}
+
+.profile-img {
+    width: 150px;
+    height: 150px;
+    border-radius: 30%;
+    object-fit: cover;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1024px) {
+    .album-review-view {
+        flex-direction: column;
+    }
+
+    .tracklist-section {
+        flex: 1;
+        max-width: 100%;
+        width: 100%;
+    }
+}
+
+@media (max-width: 768px) {
+    .album-info-section {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+
+    .album-cover-large {
+        width: 150px;
+        height: 150px;
+    }
+
+    .album-title {
+        font-size: 1.5rem;
+    }
+
+    .album-artist {
+        font-size: 1rem;
+    }
+
+    .rating-creator-container {
+        max-width: 100%;
+        padding: 2rem 1.5rem;
+    }
+
+    .album-review-view {
+        flex-direction: column;
+    }
+
+    .tracklist-section {
+        flex: 1;
+        max-width: 100%;
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+}
+
