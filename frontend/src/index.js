@@ -7,6 +7,7 @@ import Login from './pages/Login';
 import { BrowserRouter, Routes, Route } from 'react-router';
 import reportWebVitals from './reportWebVitals';
 import UserRating from './pages/UserRating';
+import RatingCreator from './pages/RatingCreator';
 import Profile from './pages/Profile';
 import SignUp from './pages/SignUp';
 
@@ -19,6 +20,7 @@ root.render(
       <Route path='/login' element={<Login/>}/>
       <Route path='/user' element={<Profile/>}/>
       <Route path='/user/ratings' element={<UserRating/>}/>
+      <Route path='/user/ratings/create' element={<RatingCreator/>}/>
 
     </Routes>
   </BrowserRouter>
