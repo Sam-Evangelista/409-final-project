@@ -17,7 +17,6 @@ async function getRating(req, res, next) {
     next()
 }
 
-module.exports = router
 
 // Getting all
 router.get('/', async(req, res) => {
@@ -33,15 +32,22 @@ router.get('/', async(req, res) => {
 router.get('/:id', getRating, (req, res) => {
     res.json(res.rating)
 })
+
+
 // Creating one
 router.post('/', async(req, res) => {
     // req.body
     const rating = new Rating({
+        user_id: req.body.user_id,
         username: req.body.username,
         album: req.body.album,
-        artist: req.body.artist,
-        rating: req.body.rating,
-        review: req.body.review
+        album_id: req.body.album_id,
+        likes: req.body.likes,
+        stars: req.body.stars,
+        comments: req.body.comments,
+        review: req.body.review,
+        tracklist_rating: req.body.tracklist_rating,
+        date: req.body.date
     })
 
     try {
@@ -87,3 +93,24 @@ router.delete('/:id', getRating, async (req, res) => {
     }
 })
 
+//get all ratings from a user
+router.get('/user/:username', async (req, res) => {
+    try {
+        const ratings = await Rating.find({ username: req.params.username })
+        res.json(ratings)
+    } catch (err) {
+        res.status(500).json({ message: err.message })
+    }
+})
+
+//get all ratings for an album (in case we want to implement a feature)
+router.get('/album/:album', async (req, res) => {
+    try {
+        const ratings = await Rating.find({ album: req.params.album })
+        res.json(ratings)
+    } catch (err) {
+        res.status(500).json({ message: err.message })
+    }
+})
+
+module.exports = router
