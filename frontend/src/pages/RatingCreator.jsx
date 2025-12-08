@@ -4,12 +4,12 @@ import AlbumSearch from '../components/AlbumSearch';
 import { Rating } from '@smastrom/react-rating'
 import TracklistRanking from '../components/TracklistRanking';
 import axios from "axios";
+import { useNavigate } from 'react-router-dom';
 
 import '@smastrom/react-rating/style.css'
 
 //replace with call to backend to get access token
-const ACCESS_TOKEN = 'REDACTED'
-
+const ACCESS_TOKEN = process.env.REACT_APP_ACCESS_TOKEN;
 function RatingCreator() {
     const [user, setUser] = useState(null);
     const [selectedAlbum, setSelectedAlbum] = useState(null);
@@ -17,6 +17,9 @@ function RatingCreator() {
     const [rating, setRating] = useState(0);
     const [tracks, setTracks] = useState([]);
     const [loadingTracks, setLoadingTracks] = useState(false);
+    const [submitted, setSubmitted] = useState(false);
+
+    const navigate = useNavigate();
 
 
     useEffect(() => {
@@ -117,17 +120,50 @@ function RatingCreator() {
 
     const handleSubmit = () => {
         //needs to send to backend
-        console.log({
-            album: selectedAlbum,
-            rating: rating,
+
+        console.log("Handling submit");
+
+        //hardcoded for now, needs to get from session cookie sent from backend???
+        const user_id = '6934c1425922a9cee32e9a28';
+        const username = 'maya ajit';
+
+        const trackIdStrings = tracks.map(track => track.id);
+
+        axios.post('http://127.0.0.1:8000/ratings/', {
+            user_id: user_id ,
+            username: username,
+            album: selectedAlbum.name,
+            album_id: selectedAlbum.id,
+            stars: rating,
             review: review,
-            trackRanking: tracks.map((track, index) => ({
-                trackId: track.id,
-                trackName: track.name,
-                rank: index + 1
-            }))
-        });
+            tracklist_rating: trackIdStrings,
+          })
+          .then(function (response) {
+            console.log(response.data); // Access the response data from the server
+            setSubmitted(true);
+          })
+          .catch(function (error) {
+            console.error('Error:', error); // Handle any errors during the request
+          });
     };
+
+    if (submitted) {
+        return (
+            <div className="rating-creator-page">
+                <div className="rating-creator-container">
+                    <h1 className="success-title">Your rating has been successfully submitted!</h1>
+                    <div className="success-buttons">
+                    <button className="submit-button" onClick={() => navigate('/user/ratings/create')}>
+                        Create another rating
+                    </button>
+                    <button className="submit-button" onClick={() => navigate('/user/ratings')}>
+                        Go to your ratings
+                    </button>
+                    </div>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="rating-creator-page">

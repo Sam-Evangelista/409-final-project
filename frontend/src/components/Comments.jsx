@@ -2,9 +2,11 @@ import { useState, useEffect } from 'react';
 import '../assets/Comments.css';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import { FaPlus } from "react-icons/fa";
+import AddCommentBox from "./AddCommentBox";
 
 
-function Comments({ ratingId, commentIds = [] }) {
+
+function Comments({ ratingId, commentIds = [], userInfo }) {
     const [comments, setComments] = useState([]);
     const [loading, setLoading] = useState(false);
     const [modalOpen, setModalOpen] = useState(false);
@@ -104,15 +106,27 @@ function Comments({ ratingId, commentIds = [] }) {
             <div className="comments-section">
                 <h3 className="comments-title">Comments</h3>
                 <p className="comments-empty">No comments yet. Be the first to comment!</p>
-                <div className="add-comment-box">
-                    <input
-                        type="text"
-                        placeholder="Add a comment..."
-                        value={newCommentText}
-                        onChange={(e) => setNewCommentText(e.target.value)}
-                    />
-                    <button onClick={handleAddComment}>Post</button>
-                </div>
+                <AddCommentBox
+                onSubmit={async (text) => {
+                    try {
+                    /* call to add comment
+                    const res = await axios.post("http://127.0.0.1:8000/comments", {
+                        rating_id: ratingId,
+                        user_id: userInfo.user_id,
+                        username: userInfo.username,
+                        comment_body: text
+                    });*/
+
+                    //const savedComment = res.data;
+
+                    const savedComment = { username: userInfo.username, comment_body: text, likes: 0, date: new Date(), child_comments: [] };
+
+                    setComments((prev) => [...prev, savedComment]);
+                    } catch (err) {
+                    console.error("Failed to add comment:", err);
+                    }
+                }}
+                />
             </div>
         );
     }
@@ -144,12 +158,27 @@ function Comments({ ratingId, commentIds = [] }) {
                         </div>
                     </div>
                 ))}
-                <button
-                    className="add-comment-btn"
-                    onClick={() => setAddCommentModal(true)}
-                >
-                <FaPlus size={70} color="#4D2727" />
-            </button>
+                <AddCommentBox
+                onSubmit={async (text) => {
+                    try {
+                    /* call to add comment
+                    const res = await axios.post("http://127.0.0.1:8000/comments", {
+                        rating_id: ratingId,
+                        user_id: userInfo.user_id,
+                        username: userInfo.username,
+                        comment_body: text
+                    });*/
+
+                    //const savedComment = res.data;
+
+                    const savedComment = { username: userInfo.username, comment_body: text, likes: 0, date: new Date(), child_comments: [] };
+
+                    setComments((prev) => [...prev, savedComment]);
+                    } catch (err) {
+                    console.error("Failed to add comment:", err);
+                    }
+                }}
+                />
             </div>
 
     
