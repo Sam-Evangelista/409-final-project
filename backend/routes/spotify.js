@@ -103,7 +103,7 @@ router.get('/callback', async (req, res) => {
     const displayName = userProfile.display_name;
     const icon = userProfile.images?.[0]?.url || null;
 
-    // get top tracks when logging in
+    // get top albums when logging in
     const topTracks = await new Promise((resolve, reject) => {
       const options = {
         url: 'https://api.spotify.com/v1/me/top/tracks?limit=20&time_range=medium_term',
