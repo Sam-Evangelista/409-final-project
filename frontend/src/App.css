@@ -41,3 +41,13 @@ a {
   color: inherit;
 }
 
+.ratings-container {
+  display:flex;
+  flex-direction: column;
+  gap: 2em;
+}
+
+h1 {
+  color: white;
+}
+

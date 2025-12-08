@@ -206,7 +206,9 @@ function Review({ ratingId, userId }) {
             <div className='left-side'>
               <div className='info'>
                 <div className='album-box'>
-                    <img className='album-img' src={albumInfo?.images?.[0]?.url || ''} alt={albumInfo?.name || 'Album'} />
+                    {albumInfo?.images?.[0]?.url && (
+                      <img className='album-img' src={albumInfo.images[0].url} alt="Album cover" />
+                    )}
                     <img className='vinyl-img' src='https://pngimg.com/d/vinyl_PNG18.png' alt='vinyl' />
                 </div>
 

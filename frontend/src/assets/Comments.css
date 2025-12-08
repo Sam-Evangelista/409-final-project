@@ -157,11 +157,12 @@
     position: absolute;
     top: 1rem;
     right: 1rem;
-    background: #eee;
+    background: rgba(255, 255, 255, 0.3);
     border: none;
     padding: 0.5rem 1rem;
     cursor: pointer;
     font-weight: bold;
+    border-radius:10px;
 }
 
 /* Child comments */
@@ -273,22 +274,30 @@ FaPlus {
 
 .new-comment-text {
     background-color: #e4b1b6;
-    width: 100%;
+    width: 90%;
     height: 60%;
     font-size: 1rem;
     border-color:#4D2727;
     color:#4D2727;
+    border-radius: 10px;
 }
 
 .submit-comment-btn {
     align-self: flex-end;
-    width: 30%;
+    width: 10%;
     height: 10%;
+    border-radius: 10px;
+    font-size:medium;
+    border-color:#4D2727;
+    background: rgba(255, 255, 255, 0.3);
+    border:none;
 }
 
 .new-comment-title {
     align-self:flex-start;
     font-weight: 600;
+    font-size: 2rem;
+    color:#4D2727;
 }
 
 

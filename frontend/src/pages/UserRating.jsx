@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import ReviewModal from "../components/ReviewModal";
 import "../assets/UserRating.css";
+import { useNavigate } from 'react-router-dom';
 
 //replace with session cookie from backend?
 const ACCESS_TOKEN = process.env.REACT_APP_ACCESS_TOKEN;
@@ -11,6 +12,8 @@ function UserRating() {
     const [ratings, setRatings] = useState([]);
     const [loading, setLoading] = useState(true);
     const [activeIndex, setActiveIndex] = useState(null);
+
+    const navigate = useNavigate();
 
     // 1. Get currently logged-in user
     //hardcoded for now, needs to get from session cookie sent from backend???
@@ -73,7 +76,7 @@ function UserRating() {
     return (
         <div className="user-ratings-page">
             <div className="ratings-header">
-                <img
+                <img onClick={() => navigate('/user')}
                     className="user"
                     src={user?.icon || "https://cdn-icons-png.flaticon.com/512/1144/1144760.png"}
                     alt="User"
