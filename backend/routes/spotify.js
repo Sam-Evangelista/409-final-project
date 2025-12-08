@@ -103,15 +103,41 @@ router.get('/callback', async (req, res) => {
     const displayName = userProfile.display_name;
     const icon = userProfile.images?.[0]?.url || null;
 
-    const existing = await User.findOne({spotify_id: spotifyId});
-    
+    // get top tracks when logging in
+    const topTracks = await new Promise((resolve, reject) => {
+      const options = {
+        url: 'https://api.spotify.com/v1/me/top/tracks?limit=20&time_range=medium_term',
+        headers: {
+          Authorization: 'Bearer ' + access_token
+        },
+        json: true
+      };
 
+      request.get(options, (error, response, body) => {
+        if (error) return reject(error);
+        if (response.statusCode !== 200) {
+          return reject(new Error(`Top tracks error: ${response.statusCode}`));
+        }
+        resolve(body.items);
+      });
+    });
+
+    const topAlbums = [
+      ...new Set(
+        topTracks
+          .map(track => track.album?.name)
+          .filter(Boolean)
+      )
+    ].slice(0, 4);
+
+    const existing = await User.findOne({spotify_id: spotifyId});
 
     if (!existing) {
           const user = new User({
           spotify_id: spotifyId,
           username: displayName,
-          icon: icon
+          icon: icon,
+          top_albums: topAlbums
       });
       const saved_user = await user.save(user);
       const auth_Token = new authToken({
@@ -139,6 +165,7 @@ router.get('/callback', async (req, res) => {
       }
         existing.username = displayName;
         existing.icon = icon;
+        existing.top_albums = topAlbums;
         await existing.save();
         await atoken.save();
     }
