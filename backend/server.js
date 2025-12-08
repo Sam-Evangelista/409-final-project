@@ -27,4 +27,7 @@ app.use('/ratings', ratingsRouter)
 const spotifyRouter = require('./routes/spotify')
 app.use('/spotify', spotifyRouter)
 
+const userRouter = require('./routes/user')
+app.use('/user', userRouter)
+
 app.listen(8000, () => console.log('Server is running on port 8000'))
