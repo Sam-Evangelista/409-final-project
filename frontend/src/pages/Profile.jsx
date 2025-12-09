@@ -187,7 +187,7 @@ function Profile () {
 
     const handleUserClick = (clickedUser) => {
         setActiveList(null);
-        window.open(`https://open.spotify.com/user/${clickedUser.spotify_id}`, '_blank');
+        navigate(`/user/${clickedUser.username}`);
     };
 
     const handleEditBio = () => {
