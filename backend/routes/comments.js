@@ -100,6 +100,32 @@ router.post('/:id/reply', getComment, async (req, res) => {
     }
 })
 
+// GET replies for a comment
+router.get('/:id/replies', async (req, res) => {
+    try {
+        const parentComment = await Comment.findById(req.params.id)
+            .populate({
+                path: 'child_comments',
+                model: 'Comment',
+                populate: { 
+                    path: 'user_id', 
+                    select: 'username icon' 
+                }
+            });
+
+        if (!parentComment) {
+            return res.status(404).json({ message: "Parent comment not found" });
+        }
+
+        res.json(parentComment.child_comments);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: err.message });
+    }
+});
+
+
+
 //updating likes for comment
 router.patch('/:id/like', getComment, async (req, res) => {
     try {

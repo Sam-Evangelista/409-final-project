@@ -73,7 +73,7 @@ function Comments({ ratingId, commentIds = [], userInfo }) {
     const handleLike = async (id, isChild = false) => {
         try {
             // Call backend to increment likes
-            const response = await axios.patch(`/comments/${id}/like`);
+            const response = await axios.patch(`http://127.0.0.1:8000/comments/${id}/like`);
             const updatedLikes = response.data.likes;
     
             // Update state locally
@@ -101,12 +101,38 @@ function Comments({ ratingId, commentIds = [], userInfo }) {
         }
     };
 
-    const openModal = (index) => {
+    const openModal = async (index) => {
         setActiveIndex(index);
         setShowReplyBox(false);
         setReplyText('');
         setModalOpen(true);
+    
+        const parentId = comments[index]._id;
+    
+        try {
+            const response = await axios.get(`http://127.0.0.1:8000/comments/${parentId}/replies`);
+            const replies = response.data;
+    
+            // Inject replies into that comment
+            setComments(prev =>
+                prev.map((c, i) => {
+                    if (i === index) {
+                        return { 
+                            ...c, 
+                            child_comments: replies.map(r => ({
+                                ...r,
+                                isLiked: false // frontend-only state
+                            }))
+                        };
+                    }
+                    return c;
+                })
+            );
+        } catch (error) {
+            console.error("Error fetching replies:", error);
+        }
     };
+    
 
     const closeModal = () => setModalOpen(false);
 
@@ -140,15 +166,15 @@ function Comments({ ratingId, commentIds = [], userInfo }) {
     
 
     // Add a reply to an existing comment
-    const handleAddReply = async () => {
-        if (!replyText.trim()) return;
+    const handleAddReply = async (text) => {
+        if (!text.trim()) return;
 
         const parentComment = comments[activeIndex]; // comment being replied to
 
         try {
-            const response = await axios.post(`/comments/${parentComment._id}/reply`, {
+            const response = await axios.post(`http://127.0.0.1:8000/comments/${parentComment._id}/reply`, {
                 user_id: userInfo._id,
-                comment_body: replyText
+                comment_body: text
             });
 
             const savedReply = response.data;
@@ -270,7 +296,10 @@ function Comments({ ratingId, commentIds = [], userInfo }) {
                                     onChange={(e) => setReplyText(e.target.value)}
                                     rows={3}
                                 />
-                                <button className="submit-reply-btn" onClick={handleAddReply}>
+                                <button 
+                                    className="submit-reply-btn"
+                                    onClick={() => handleAddReply(replyText)}
+                                >
                                     Post Reply
                                 </button>
                             </div>
