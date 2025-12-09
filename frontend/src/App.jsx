@@ -13,6 +13,7 @@ function App() {
   const [ratings, setRatings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [userId, setUser] = useState(null);
+  
 
 
   useEffect(() => {
@@ -24,7 +25,6 @@ function App() {
       // const params = new URLSearchParams(search);
       // const ACCESS_TOKEN = params.get('access_token');
       // const ACCESS_TOKEN = process.env.REACT_APP_ACCESS_TOKEN;
-      console.log("Review Access token:", ACCESS_TOKEN);
 
 
     if (!spotifyId) {

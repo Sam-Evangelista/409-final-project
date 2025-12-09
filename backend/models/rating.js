@@ -18,6 +18,14 @@ const ratingSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    album_cover: {
+        type: String,
+        required: true,
+    },
+    artist : {
+        type: String,
+        required: true,
+    },
     likes : {
         type: Number,
         default: 0
