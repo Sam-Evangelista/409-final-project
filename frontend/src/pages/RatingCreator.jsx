@@ -9,7 +9,6 @@ import { useNavigate } from 'react-router-dom';
 import '@smastrom/react-rating/style.css'
 
 //replace with call to backend to get access token
-const ACCESS_TOKEN = process.env.REACT_APP_ACCESS_TOKEN;
 function RatingCreator() {
     const [user, setUser] = useState(null);
     const [selectedAlbum, setSelectedAlbum] = useState(null);
@@ -20,6 +19,8 @@ function RatingCreator() {
     const [submitted, setSubmitted] = useState(false);
 
     const navigate = useNavigate();
+
+    const ACCESS_TOKEN = localStorage.getItem("spotify_token");
 
 
     useEffect(() => {

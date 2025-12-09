@@ -5,7 +5,7 @@ import "../assets/UserRating.css";
 import { useNavigate } from 'react-router-dom';
 
 //replace with session cookie from backend?
-const ACCESS_TOKEN = process.env.REACT_APP_ACCESS_TOKEN;
+//const ACCESS_TOKEN = process.env.REACT_APP_ACCESS_TOKEN;
 
 function UserRating() {
     const [mongoId, setMongoId] = useState(null);
@@ -13,6 +13,8 @@ function UserRating() {
     const [ratings, setRatings] = useState([]);
     const [loading, setLoading] = useState(true);
     const [activeIndex, setActiveIndex] = useState(null);
+
+    const ACCESS_TOKEN = localStorage.getItem("spotify_token");
     
 
     const navigate = useNavigate();
