@@ -15,6 +15,10 @@ function Profile () {
     const params = new URLSearchParams(search);
     const accessToken = params.get('access_token');
 
+    console.log(accessToken);
+    // if (accessToken) {
+        localStorage.setItem("spotify_token", accessToken);
+    // }
     useEffect(() => {
         if (!accessToken) {
             console.log("No access token found");
@@ -50,8 +54,22 @@ function Profile () {
         .then(res => {
             console.log("Top tracks:", res.data);
             setTopTracks(res.data.items || []);
+        }).catch(err => console.error("Error fetching top tracks:", err));
+        
+        axios.get("http://127.0.0.1:8000/spotify/me", {
+            headers: {
+                Authorization: `Bearer ${accessToken}`
+            }
         })
-        .catch(err => console.error("Error fetching top tracks:", err));
+        .then(res => {
+            setUser(res.data);
+
+            // Save Spotify user ID
+            localStorage.setItem("spotify_user_id", res.data.id);
+
+            console.log("Spotify User ID:", res.data.id);
+        })
+        .catch(err => console.error("Error fetching user id:", err));
 
       }, [accessToken]);
 
