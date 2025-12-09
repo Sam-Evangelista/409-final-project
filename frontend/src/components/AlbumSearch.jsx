@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import { searchAlbums } from "../utils/spotifyCache";
 
 export default function AlbumSearch({ accessToken, onAlbumSelect }) {
   const [query, setQuery] = useState("");
@@ -19,7 +20,7 @@ export default function AlbumSearch({ accessToken, onAlbumSelect }) {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Debounced Spotify search
+  // Debounced Spotify search with caching
   useEffect(() => {
     if (!query.trim()) {
       setResults([]);
@@ -29,19 +30,9 @@ export default function AlbumSearch({ accessToken, onAlbumSelect }) {
     if (timeoutRef.current) clearTimeout(timeoutRef.current);
 
     timeoutRef.current = setTimeout(async () => {
-      const res = await fetch(
-        `https://api.spotify.com/v1/search?q=${encodeURIComponent(
-          query
-        )}&type=album&limit=5`,
-        {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-        }
-      );
-
-      const data = await res.json();
-      setResults(data.albums?.items || []);
+      // Use cached search function
+      const albums = await searchAlbums(query, accessToken);
+      setResults(albums);
       setShowDropdown(true);
     }, 300);
 

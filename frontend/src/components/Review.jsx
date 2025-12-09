@@ -6,6 +6,9 @@ import '../assets/Review.css';
 import '@smastrom/react-rating/style.css';
 import axios from "axios";
 import '@fortawesome/fontawesome-free/css/all.min.css';
+import { useUser } from '../context/UserContext';
+import { getAlbum, getTracksBatch } from '../utils/spotifyCache';
+import { getFromCache, setInCache, CACHE_KEYS, TTL } from '../utils/cache';
 
 
 
@@ -19,62 +22,51 @@ function Review({ ratingId, userId }) {
     const [loading, setLoading] = useState(true);
     const [liked, setLiked] = useState(false);
 
-    console.log("User id:", userId);
+    // Get token from context
+    const { getToken, fetchDbUserById } = useUser();
+    const ACCESS_TOKEN = getToken();
 
-    //const ACCESS_TOKEN = localStorage.getItem("spotify_token");
-    const ACCESS_TOKEN = 'BQC_uKVaz_tUeGLTxCWcfEvMLCbmUbjVHw44X5wTQoYS5a0udoaB1xmwvrCsjz1MsOE5uelTCnlJLTKv8NqKWz0dyds09j2ql514R3zKuvZA9Azbef49Fb0JtPtRZvX_URLVnQ0YZr6ZeU5DDf2GlmqbFSDLvasUAlAtYcHDlzdy5qNfiTmi7ws4t75rYYNC3ovMoL_gakn5CqbBSAKLreap_sFssZQHJw21VJ1lrZb2DlNBXFXJ97PSzfXejQ7UuALFKj0';
-    const spotifyId = localStorage.getItem("spotify_user_id");
-    console.log(spotifyId);
-    console.log("Review Access token:", ACCESS_TOKEN);
-      
     useEffect(() => {
-      if (!spotifyId) return;
-    
+      if (!ACCESS_TOKEN) return;
+
       const fetchAlbumAndTracks = async () => {
         try {
-          const userRes = await axios.get(`http://127.0.0.1:8000/user/${userId}`);
-          setUserInfo(userRes.data);
-    
+          // Fetch user info with caching
+          if (userId) {
+            const cachedUser = getFromCache(CACHE_KEYS.dbUserById(userId));
+            if (cachedUser) {
+              setUserInfo(cachedUser);
+            } else {
+              const userData = await fetchDbUserById(userId);
+              setUserInfo(userData);
+            }
+          }
+
+          // Fetch rating data
           const ratingRes = await axios.get(`http://127.0.0.1:8000/ratings/${ratingId}`);
           setRating(ratingRes.data);
 
-          const rating_userRes = await axios.get(`http://127.0.0.1:8000/user/${ratingRes.data.user_id}`);
-          setRatingUserInfo(rating_userRes.data);
-
-    
-          // Helper for requests with retry
-          const axiosWithRetry = async (url, options, retries = 3) => {
-            for (let i = 0; i < retries; i++) {
-              try {
-                return await axios.get(url, options);
-              } catch (err) {
-                if (err.response && err.response.status === 429) {
-                  const retryAfter = parseInt(err.response.headers['retry-after'] || '1', 10);
-                  console.warn(`Rate limited. Retrying after ${retryAfter} seconds...`);
-                  await new Promise(res => setTimeout(res, (retryAfter + 1) * 1000));
-                } else {
-                  throw err;
-                }
-              }
+          // Fetch rating author info with caching
+          if (ratingRes.data.user_id) {
+            const cachedRatingUser = getFromCache(CACHE_KEYS.dbUserById(ratingRes.data.user_id));
+            if (cachedRatingUser) {
+              setRatingUserInfo(cachedRatingUser);
+            } else {
+              const ratingUserData = await fetchDbUserById(ratingRes.data.user_id);
+              setRatingUserInfo(ratingUserData);
             }
-            throw new Error('Max retries exceeded');
-          };
-    
-          // Fetch album info with retry
-          const albumRes = await axiosWithRetry(
-            `https://api.spotify.com/v1/albums/${ratingRes.data.album_id}`,
-            { headers: { Authorization: `Bearer ${ACCESS_TOKEN}` } }
-          );
-          setAlbumInfo(albumRes.data);
-    
-          // Fetch tracks in batch
+          }
+
+          // Fetch album info using cached function (permanently cached)
+          if (ratingRes.data.album_id) {
+            const albumData = await getAlbum(ratingRes.data.album_id, ACCESS_TOKEN);
+            setAlbumInfo(albumData);
+          }
+
+          // Fetch tracks using cached batch function
           if (ratingRes.data.tracklist_rating?.length > 0) {
-            const trackIds = ratingRes.data.tracklist_rating.join(',');
-            const tracksRes = await axiosWithRetry(
-              `https://api.spotify.com/v1/tracks?ids=${trackIds}`,
-              { headers: { Authorization: `Bearer ${ACCESS_TOKEN}` } }
-            );
-            const trackData = tracksRes.data.tracks.map(t => ({
+            const tracksData = await getTracksBatch(ratingRes.data.tracklist_rating, ACCESS_TOKEN);
+            const trackData = tracksData.map(t => ({
               id: t.id,
               name: t.name,
               duration: t.duration_ms
@@ -87,9 +79,9 @@ function Review({ ratingId, userId }) {
           setLoading(false);
         }
       };
-    
+
       fetchAlbumAndTracks();
-    }, [ratingId]);
+    }, [ratingId, ACCESS_TOKEN, userId, fetchDbUserById]);
     
     
       

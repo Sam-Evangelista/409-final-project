@@ -1,43 +1,13 @@
 import '../assets/Header.css';
 import { Link, useNavigate } from 'react-router';
-import { useEffect, useState } from 'react';
-import axios from 'axios';
+import { useUser } from '../context/UserContext';
 
 function Header () {
-    const [user, setUser] = useState(null);
-    const [loading, setLoading] = useState(true);
+    const { spotifyUser: user, loading, logout } = useUser();
     const navigate = useNavigate();
 
-    useEffect(() => {
-        const token = localStorage.getItem('spotify_token');
-
-        if (!token || token === 'null') {
-            setLoading(false);
-            return;
-        }
-
-        axios.get("http://127.0.0.1:8000/spotify/me", {
-            headers: {
-                Authorization: `Bearer ${token}`
-            }
-        })
-        .then(res => {
-            setUser(res.data);
-            setLoading(false);
-        })
-        .catch(err => {
-            console.error("Token invalid or expired:", err);
-            // Clear invalid token
-            localStorage.removeItem('spotify_token');
-            localStorage.removeItem('spotify_user_id');
-            setLoading(false);
-        });
-    }, []);
-
     const handleLogout = () => {
-        localStorage.removeItem('spotify_token');
-        localStorage.removeItem('spotify_user_id');
-        setUser(null);
+        logout();
         navigate('/login');
     };
 
