@@ -3,81 +3,76 @@ import axios from "axios";
 import ReviewModal from "../components/ReviewModal";
 import "../assets/UserRating.css";
 import { useNavigate } from 'react-router-dom';
-
-//replace with session cookie from backend?
-//const ACCESS_TOKEN = process.env.REACT_APP_ACCESS_TOKEN;
+import { useUser } from '../context/UserContext';
+import { getAlbumsBatch } from '../utils/spotifyCache';
+import { getFromCache, setInCache, CACHE_KEYS, TTL } from '../utils/cache';
 
 function UserRating() {
-    const [mongoId, setMongoId] = useState(null);
-    const [user, setUserInfo] = useState(null);
     const [ratings, setRatings] = useState([]);
     const [loading, setLoading] = useState(true);
     const [activeIndex, setActiveIndex] = useState(null);
 
-    const ACCESS_TOKEN = localStorage.getItem("spotify_token");
-
-    console.log(ACCESS_TOKEN);
-    
+    // Get user data from context (cached)
+    const { dbUser: user, getToken } = useUser();
+    const ACCESS_TOKEN = getToken();
 
     const navigate = useNavigate();
 
-    // 1. Get currently logged-in user
-    //hardcoded for now, needs to get from session cookie sent from backend???
-
-    // const user_id = '6934c1425922a9cee32e9a28';
-    const spotify_id = localStorage.getItem("spotify_user_id");
-    const spotifyId = localStorage.getItem("spotify_user_id");
-
+    // Fetch user's ratings + album covers using batch API
     useEffect(() => {
-        if (!spotifyId) {
-            console.log("No spotifyId in localStorage");
-            return;
-        }
-
-        axios.get(`http://127.0.0.1:8000/user/spotify/${spotifyId}`)
-            .then(res => {
-                console.log("Mongo user:", res.data);
-                setMongoId(res.data._id);   // store the MongoDB _id
-            })
-            .catch(err => console.error("Error getting MongoDB user:", err));
-    }, [spotifyId]);
-
-    const username = 'maya ajit hi';
-
-    // 2. Get user's ratings + album covers
-    useEffect(() => {
-        if (!mongoId) return;
+        if (!user?._id || !ACCESS_TOKEN) return;
 
         const fetchRatings = async () => {
             try {
-                const userRes = await axios.get(`http://127.0.0.1:8000/user/${mongoId}`);
-                console.log("Fetched user:", userRes.data);
-                setUserInfo(userRes.data);
+                // Check cache first for user ratings
+                const cacheKey = CACHE_KEYS.userRatings(user.username);
+                const cachedRatings = getFromCache(cacheKey);
+
+                if (cachedRatings) {
+                    setRatings(cachedRatings);
+                    setLoading(false);
+                    return;
+                }
 
                 const ratingsRes = await axios.get(
-                    `http://127.0.0.1:8000/ratings/user/${userRes.data.username}`
+                    `http://127.0.0.1:8000/ratings/user/${user.username}`
                 );
 
                 const userRatings = ratingsRes.data;
 
-                const ratingsWithCovers = await Promise.all(
-                    userRatings.map(async (rating) => {
-                        const albumRes = await fetch(
-                            `https://api.spotify.com/v1/albums/${rating.album_id}`,
-                            { headers: { Authorization: `Bearer ${ACCESS_TOKEN}` } }
-                        );
+                if (userRatings.length === 0) {
+                    setRatings([]);
+                    setLoading(false);
+                    return;
+                }
 
-                        const albumData = await albumRes.json();
+                // Get unique album IDs
+                const albumIds = [...new Set(userRatings.map(r => r.album_id).filter(Boolean))];
 
-                        return {
-                            ...rating,
-                            albumCover: albumData.images?.[1]?.url,
-                            albumName: albumData.name,
-                            artist: albumData.artists[0].name,
-                        };
-                    })
-                );
+                // Batch fetch all albums at once (uses caching internally)
+                const albums = await getAlbumsBatch(albumIds, ACCESS_TOKEN);
 
+                // Create a map for quick lookup
+                const albumMap = {};
+                albums.forEach(album => {
+                    if (album) {
+                        albumMap[album.id] = album;
+                    }
+                });
+
+                // Combine ratings with album data
+                const ratingsWithCovers = userRatings.map(rating => {
+                    const album = albumMap[rating.album_id];
+                    return {
+                        ...rating,
+                        albumCover: album?.images?.[1]?.url || album?.images?.[0]?.url,
+                        albumName: album?.name || rating.album,
+                        artist: album?.artists?.[0]?.name || 'Unknown Artist',
+                    };
+                });
+
+                // Cache the combined result for 5 minutes
+                setInCache(cacheKey, ratingsWithCovers, TTL.MEDIUM);
                 setRatings(ratingsWithCovers);
             } catch (error) {
                 console.error("Error fetching ratings:", error);
@@ -87,7 +82,7 @@ function UserRating() {
         };
 
         fetchRatings();
-    }, [mongoId]);
+    }, [user?._id, user?.username, ACCESS_TOKEN]);
 
 
     if (loading) return <div className="loading">Loading your ratings...</div>;
@@ -95,7 +90,7 @@ function UserRating() {
     return (
         <div className="user-ratings-page">
             <div className="ratings-header">
-                <img onClick={() => navigate(`/user?access_token=${ACCESS_TOKEN}`)}
+                <img onClick={() => navigate('/user')}
                     className="user"
                     src={user?.icon || "https://cdn-icons-png.flaticon.com/512/1144/1144760.png"}
                     alt="User"

@@ -5,6 +5,8 @@ import { Rating } from '@smastrom/react-rating';
 import TracklistRanking from '../components/TracklistRanking';
 import axios from "axios";
 import { useNavigate } from 'react-router-dom';
+import { getTracksBatch } from '../utils/spotifyCache';
+import { getFromCache, setInCache, TTL, removeFromCache, CACHE_KEYS } from '../utils/cache';
 
 import '@smastrom/react-rating/style.css';
 
@@ -42,10 +44,19 @@ function RatingCreator() {
             .catch(err => console.error("Error getting MongoDB user:", err));
     }, [spotifyId]);
 
-    // Fetch tracks when an album is selected
+    // Fetch tracks when album is selected (with caching)
     useEffect(() => {
         const fetchAlbumTracks = async () => {
-            if (!selectedAlbum?.id) return;
+            if (!selectedAlbum?.id || !ACCESS_TOKEN) return;
+
+            // Check cache first
+            const cacheKey = `album_tracks_${selectedAlbum.id}`;
+            const cached = getFromCache(cacheKey);
+            if (cached) {
+                setTracks(cached);
+                return;
+            }
+
             setLoadingTracks(true);
             try {
                 const response = await fetch(
@@ -55,21 +66,17 @@ function RatingCreator() {
                 if (!response.ok) throw new Error('Failed to fetch tracks');
                 const data = await response.json();
 
-                const trackIds = data.items.map(track => track.id).join(',');
-                if (trackIds) {
-                    const trackDetailsResponse = await fetch(
-                        `https://api.spotify.com/v1/tracks?ids=${trackIds}`,
-                        { headers: { Authorization: `Bearer ${ACCESS_TOKEN}` } }
-                    );
-                    if (trackDetailsResponse.ok) {
-                        const trackDetailsData = await trackDetailsResponse.json();
-                        setTracks(trackDetailsData.tracks || []);
-                    } else {
-                        setTracks(data.items || []);
-                    }
+                const trackIds = data.items.map(track => track.id);
+                let trackDetails = [];
+
+                if (trackIds.length > 0) {
+                    trackDetails = await getTracksBatch(trackIds, ACCESS_TOKEN);
                 } else {
-                    setTracks(data.items || []);
+                    trackDetails = data.items;
                 }
+
+                setInCache(cacheKey, trackDetails, TTL.PERMANENT);
+                setTracks(trackDetails);
             } catch (err) {
                 console.error('Error fetching album tracks:', err);
                 setTracks([]);
@@ -120,6 +127,10 @@ function RatingCreator() {
 
             console.log(response.data);
             setSubmitted(true);
+
+            // Invalidate ratings cache
+            removeFromCache(CACHE_KEYS.ratings());
+            removeFromCache(CACHE_KEYS.userRatings(user.display_name || user.username || 'Unknown User'));
         } catch (err) {
             console.error('Error submitting rating:', err.response?.data ?? err.message);
         }
@@ -209,5 +220,6 @@ function RatingCreator() {
 }
 
 export default RatingCreator;
+
 
 

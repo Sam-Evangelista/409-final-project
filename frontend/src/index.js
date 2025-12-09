@@ -10,20 +10,22 @@ import UserRating from './pages/UserRating';
 import RatingCreator from './pages/RatingCreator';
 import Profile from './pages/Profile';
 import SignUp from './pages/SignUp';
+import { UserProvider } from './context/UserContext';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <BrowserRouter>
-    <Routes>
-      <Route path='/' element={<Login/>}/>
-      <Route path='/home' element={<App/>}/>
-      <Route path='/signup' element={<SignUp/>}/>
-      <Route path='/login' element={<Login/>}/>
-      <Route path='/user' element={<Profile/>}/>
-      <Route path='/user/ratings' element={<UserRating/>}/>
-      <Route path='/user/ratings/create' element={<RatingCreator/>}/>
-
-    </Routes>
+    <UserProvider>
+      <Routes>
+        <Route path='/' element={<Login/>}/>
+        <Route path='/home' element={<App/>}/>
+        <Route path='/signup' element={<SignUp/>}/>
+        <Route path='/login' element={<Login/>}/>
+        <Route path='/user' element={<Profile/>}/>
+        <Route path='/user/ratings' element={<UserRating/>}/>
+        <Route path='/user/ratings/create' element={<RatingCreator/>}/>
+      </Routes>
+    </UserProvider>
   </BrowserRouter>
 );
 

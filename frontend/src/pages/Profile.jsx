@@ -2,12 +2,14 @@ import Header from "../components/Header";
 import Followers from "../components/Followers";
 import AlbumSearch from "../components/AlbumSearch";
 import '../assets/Profile.css';
-import { Link, useLocation, useNavigate } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { useUser } from "../context/UserContext";
+import { getTopArtists, getTopTracks } from "../utils/spotifyCache";
+import { getFromCache, setInCache, CACHE_KEYS, TTL } from "../utils/cache";
 import {
     USE_FAKE_DATA,
-    fakeUser,
     fakeDbUser,
     fakeTopArtists,
     fakeTopTracks,
@@ -20,12 +22,6 @@ function MostListenedAlbums({ spotifyId, fakeAlbums }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // if (USE_FAKE_DATA) {
-    //   setAlbumUrls(fakeAlbums || fakeDbUser.most_listened_albums);
-    //   setLoading(false);
-    //   return;
-    // }
-
     if (!spotifyId) {
       setLoading(false);
       return;
@@ -34,14 +30,27 @@ function MostListenedAlbums({ spotifyId, fakeAlbums }) {
     const fetchAlbums = async () => {
       try {
         setLoading(true);
+
+        // Check cache first
+        const cacheKey = `most_listened_${spotifyId}`;
+        const cached = getFromCache(cacheKey);
+        if (cached) {
+          setAlbumUrls(cached);
+          setLoading(false);
+          return;
+        }
+
         const res = await fetch(`http://127.0.0.1:8000/user/${spotifyId}/top-albums-art`);
         if (!res.ok) {
           setAlbumUrls([]);
           return;
         }
         const data = await res.json();
+        const urls = Array.isArray(data) ? data : [];
 
-        setAlbumUrls(Array.isArray(data) ? data : []);
+        // Cache for 5 minutes
+        setInCache(cacheKey, urls, TTL.MEDIUM);
+        setAlbumUrls(urls);
       } catch (err) {
         console.error("Error fetching top albums:", err);
         setAlbumUrls([]);
@@ -75,10 +84,16 @@ function MostListenedAlbums({ spotifyId, fakeAlbums }) {
 }
 
 function Profile () {
-    const [user, setUser] = useState(null);
-    const [dbUser, setDbUser] = useState(null);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
+    // Get user data from context (cached)
+    const {
+        spotifyUser: user,
+        dbUser,
+        loading: contextLoading,
+        fetchDbUser,
+        updateDbUser,
+        getToken
+    } = useUser();
+
     const [topArtists, setTopArtists] = useState([]);
     const [topTracks, setTopTracks] = useState([]);
     const [activeList, setActiveList] = useState(null);
@@ -88,18 +103,27 @@ function Profile () {
     const [isEditingTopAlbums, setIsEditingTopAlbums] = useState(false);
     const [selectedTopAlbums, setSelectedTopAlbums] = useState([]);
     const [topAlbumsData, setTopAlbumsData] = useState([]);
+    const [localDbUser, setLocalDbUser] = useState(null);
 
     const navigate = useNavigate();
 
+    // Handle URL token on callback
     const search = window.location.search;
     const params = new URLSearchParams(search);
     const urlToken = params.get('access_token');
 
-    const accessToken = urlToken || localStorage.getItem('spotify_token');
+    const accessToken = urlToken || getToken();
 
     if (urlToken) {
         localStorage.setItem("spotify_token", urlToken);
     }
+
+    // Sync localDbUser with context dbUser
+    useEffect(() => {
+        if (dbUser) {
+            setLocalDbUser(dbUser);
+        }
+    }, [dbUser]);
 
     const handleLoadFollowList = async (type) => {
         if (USE_FAKE_DATA) {
@@ -108,10 +132,26 @@ function Profile () {
             return;
         }
 
-        if (!dbUser?._id) return;
+        if (!localDbUser?._id) return;
+
+        // Check cache first
+        const cacheKey = type === 'followers'
+            ? CACHE_KEYS.followers(localDbUser._id)
+            : CACHE_KEYS.following(localDbUser._id);
+        const cached = getFromCache(cacheKey);
+
+        if (cached) {
+            setListUsers(cached);
+            setActiveList(type);
+            return;
+        }
+
         try {
-            const res = await axios.get(`http://127.0.0.1:8000/user/${dbUser._id}/${type}`);
-            setListUsers(res.data || []);
+            const res = await axios.get(`http://127.0.0.1:8000/user/${localDbUser._id}/${type}`);
+            const data = res.data || [];
+            // Cache for 5 minutes
+            setInCache(cacheKey, data, TTL.MEDIUM);
+            setListUsers(data);
             setActiveList(type);
         } catch (err) {
             console.error(`Error fetching ${type}:`, err);
@@ -124,29 +164,24 @@ function Profile () {
     };
 
     const handleEditBio = () => {
-        setBioText(dbUser?.bio || '');
+        setBioText(localDbUser?.bio || '');
         setIsEditingBio(true);
     };
 
     const handleSaveBio = async () => {
         if (USE_FAKE_DATA) {
-            setDbUser({ ...dbUser, bio: bioText });
+            setLocalDbUser({ ...localDbUser, bio: bioText });
             setIsEditingBio(false);
             return;
         }
 
-        console.log("Saving bio, dbUser:", dbUser);
-        if (!dbUser?._id) {
+        if (!localDbUser?._id) {
             console.error("No dbUser._id found");
             return;
         }
         try {
-            console.log("Making PUT request to:", `http://127.0.0.1:8000/user/${dbUser._id}`);
-            const res = await axios.put(`http://127.0.0.1:8000/user/${dbUser._id}`, {
-                bio: bioText
-            });
-            console.log("Response:", res.data);
-            setDbUser(res.data);
+            const updatedUser = await updateDbUser(localDbUser._id, { bio: bioText });
+            setLocalDbUser(updatedUser);
             setIsEditingBio(false);
         } catch (err) {
             console.error("Error updating bio:", err.response?.data || err.message);
@@ -155,7 +190,7 @@ function Profile () {
 
     const handleCancelBio = () => {
         setIsEditingBio(false);
-        setBioText(dbUser?.bio || '');
+        setBioText(localDbUser?.bio || '');
     };
 
     const handleEditTopAlbums = () => {
@@ -182,20 +217,17 @@ function Profile () {
         const albumImageUrls = selectedTopAlbums.map(a => a.images?.[0]?.url || a.images?.[1]?.url || '');
 
         if (USE_FAKE_DATA) {
-            setDbUser({ ...dbUser, top_albums: albumImageUrls });
+            setLocalDbUser({ ...localDbUser, top_albums: albumImageUrls });
             setTopAlbumsData(albumImageUrls);
             setIsEditingTopAlbums(false);
             return;
         }
 
-        if (!dbUser?._id) return;
+        if (!localDbUser?._id) return;
         try {
-            const res = await axios.put(`http://127.0.0.1:8000/user/${dbUser._id}`, {
-                top_albums: albumImageUrls
-            });
-            setDbUser(res.data);
+            const updatedUser = await updateDbUser(localDbUser._id, { top_albums: albumImageUrls });
+            setLocalDbUser(updatedUser);
             setIsEditingTopAlbums(false);
-
             setTopAlbumsData(albumImageUrls);
         } catch (err) {
             console.error("Error saving top albums:", err);
@@ -207,78 +239,36 @@ function Profile () {
         setSelectedTopAlbums([]);
     };
 
+    // Fetch top artists and tracks with caching
     useEffect(() => {
         if (USE_FAKE_DATA) {
-            setUser(fakeUser);
-            setDbUser(fakeDbUser);
             setTopArtists(fakeTopArtists);
             setTopTracks(fakeTopTracks);
             setTopAlbumsData(fakeDbUser.top_albums);
-            setLoading(false);
             return;
         }
 
-        if (!accessToken) {
-            console.log("No access token found");
-            setLoading(false);
-            return;
-        }
+        if (!accessToken || !user?.id) return;
 
-        // Fetch user profile
-        axios.get("http://127.0.0.1:8000/spotify/me", {
-            headers: {
-                Authorization: `Bearer ${accessToken}`
-            }
-        })
-        .then(res => {
-            setUser(res.data);
-            console.log("BACKEND RESPONSE:", res.data);
-            localStorage.setItem("spotify_user_id", res.data.id);
-            console.log("Spotify User ID:", res.data.id);
-            setLoading(false);
+        // Use cached Spotify data functions
+        const fetchData = async () => {
+            const [artists, tracks] = await Promise.all([
+                getTopArtists(accessToken, user.id),
+                getTopTracks(accessToken, user.id)
+            ]);
+            setTopArtists(artists);
+            setTopTracks(tracks);
+        };
 
-            axios.get(`http://127.0.0.1:8000/user/spotify/${res.data.id}`)
-                .then(dbRes => {
-                    if (dbRes?.data) {
-                        setDbUser(dbRes.data);
-                        console.log("DB User:", dbRes.data);
-                    }
-                })
-                .catch(dbErr => {
-                    console.error("Error fetching db user:", dbErr);
-                });
-        })
-        .catch(err => {
-            console.error("Error fetching user:", err);
-            setLoading(false);
-        });
+        fetchData();
+    }, [accessToken, user?.id]);
 
-        // Top artists
-        axios.get("http://127.0.0.1:8000/spotify/top/artists", {
-            headers: { Authorization: `Bearer ${accessToken}` }
-        })
-        .then(res => {
-            console.log("Top artists:", res.data);
-            setTopArtists(res.data.items || []);
-        })
-        .catch(err => console.error("Error fetching top artists:", err));
-
-        // Top tracks
-        axios.get("http://127.0.0.1:8000/spotify/top/tracks", {
-            headers: { Authorization: `Bearer ${accessToken}` }
-        })
-        .then(res => {
-            console.log("Top tracks:", res.data);
-            setTopTracks(res.data.items || []);
-        }).catch(err => console.error("Error fetching top tracks:", err));
-
-      }, [accessToken]);
-
+    // Set top albums data when localDbUser changes
     useEffect(() => {
-        if (dbUser?.top_albums && dbUser.top_albums.length > 0) {
-            setTopAlbumsData(dbUser.top_albums);
+        if (localDbUser?.top_albums && localDbUser.top_albums.length > 0) {
+            setTopAlbumsData(localDbUser.top_albums);
         }
-    }, [dbUser]);
+    }, [localDbUser]);
 
     return (
         <div>
@@ -287,7 +277,7 @@ function Profile () {
             <div className="profile-top">
                 <div className="profile-box">
                     <div>
-                        <img className="profile-img" src={user?.images[0].url}/>
+                        <img className="profile-img" src={user?.images?.[0]?.url || "https://cdn-icons-png.flaticon.com/512/1144/1144760.png"}/>
                         {<div className="profile-icons">
                             <img className="profile-icon" src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/84/Spotify_icon.svg/250px-Spotify_icon.svg.png"/>
                             <img className="profile-icon" src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5f/Apple_Music_icon.svg/2048px-Apple_Music_icon.svg.png"/>
@@ -299,11 +289,11 @@ function Profile () {
                         <h1>{user?.display_name || "Loading..."}</h1>
                         <h2>
                             <span className="clickable-text" onClick={() => handleLoadFollowList('followers')}>
-                                {dbUser?.followers?.length || 0} Followers
+                                {localDbUser?.followers?.length || 0} Followers
                             </span>
                             {' '}
                             <span className="clickable-text" onClick={() => handleLoadFollowList('following')}>
-                                {dbUser?.following?.length || 0} Following
+                                {localDbUser?.following?.length || 0} Following
                             </span>
                         </h2>
                         {isEditingBio ? (
@@ -323,7 +313,7 @@ function Profile () {
                             </div>
                         ) : (
                             <h2 className="clickable-text" onClick={handleEditBio}>
-                                {dbUser?.bio || "Add a bio..."}
+                                {localDbUser?.bio || "Add a bio..."}
                             </h2>
                         )}
                     </div>
