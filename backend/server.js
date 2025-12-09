@@ -15,7 +15,7 @@ db.once('open', () => console.log('Connected to Database'))
 
 app.use(cors({
     origin: ['http://127.0.0.1:3000', 'http://localhost:3000', 'https://recordb.vercel.app/'],        // frontend origin
-    methods: 'GET,POST,PATCH,DELETE,OPTIONS',
+    methods: 'GET,POST,PUT,PATCH,DELETE,OPTIONS',
     allowedHeaders: 'Content-Type,Authorization',
 }));
 
