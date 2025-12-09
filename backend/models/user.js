@@ -29,6 +29,10 @@ const userSchema = new mongoose.Schema({
         type: [String],
         default: []
     },
+    most_listened_albums: {
+        type: [String],
+        default: []
+    },
     bio : {
         type: String,
         default: ''
