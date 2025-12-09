@@ -217,8 +217,4 @@ router.post('/unfollow', unfollowUser);
 router.get('/:id/following', getUserFollowing)
 router.get('/:id/followers', getUserFollowers)
 
-router.get('/:id/top-albums', getTopAlbumArtwork);
-
-
-
 module.exports = router;
