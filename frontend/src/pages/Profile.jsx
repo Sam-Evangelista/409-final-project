@@ -3,15 +3,57 @@ import '../assets/Profile.css';
 import { Link, useLocation } from "react-router";
 import { useEffect, useState } from "react";
 import axios from "axios";
-import Followers from "../components/Followers";
+
+function MostListenedAlbums({ spotifyId }) {
+  const [albums, setAlbums] = useState([]);
+
+  useEffect(() => {
+    if (!spotifyId) return;
+
+        const fetchAlbums = async () => {
+            try {
+                const res = await fetch(`http://localhost:8000/user/${spotifyId}/top-albums-art`);
+                const data = await res.json();
+                // Normalize to expected shape: [{ spotify_id, name, image }]
+                const normalized = Array.isArray(data)
+                    ? data.map(a => ({
+                            spotify_id: a.spotify_id || a.id || a.spotifyId || null,
+                            name: a.name || a.album || "Unknown",
+                            image: a.image || a.images?.[0]?.url || a.album?.images?.[0]?.url || null
+                        }))
+                    : [];
+                setAlbums(normalized);
+            } catch (err) {
+                console.error("Error fetching top albums:", err);
+                setAlbums([]);
+            }
+        };
+
+    fetchAlbums();
+  }, [spotifyId]);
+
+    if (!albums.length) return <p>No top albums found.</p>;
+
+  return (
+    <div>
+      <h1>Most Listened to Albums</h1>
+      <div className="top-spacing">
+                {albums.map((album) => (
+                    <img
+                        key={album.spotify_id || album.name}
+                        className="top-album"
+                        src={album.image || "/default-album.png"}
+                        alt={album.name || "Unknown Album"}
+                    />
+                ))}
+      </div>
+      <div className="rectangle"></div>
+    </div>
+  );
+}
 
 function Profile () {
     const [user, setUser] = useState(null);
-    const [dbUser, setDbUser] = useState(null);          
-    const [activeList, setActiveList] = useState(null);  
-    const [listUsers, setListUsers] = useState([]);      
-    
-    
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [topArtists, setTopArtists] = useState([]);
@@ -36,18 +78,8 @@ function Profile () {
                 Authorization: `Bearer ${accessToken}`
             }
         })
-        .then(async (res) => {
-            const spotifyUser = res.data;
-            setUser(spotifyUser);
-
-            try {
-            const dbRes = await axios.get(
-                `http://127.0.0.1:8000/user/spotify/${spotifyUser.id}`
-            );
-            setDbUser(dbRes.data);
-            } catch (err) {
-            console.error("Error fetching DB user:", err);
-            }
+        .then(res => {
+            setUser(res.data);
         })
         .catch(err => {
             console.error("Error fetching /me:", err);
@@ -72,36 +104,23 @@ function Profile () {
             setTopTracks(res.data.items || []);
         }).catch(err => console.error("Error fetching top tracks:", err));
         
-        axios.get("http://127.0.0.1:8000/user/spotify/me", {
+        axios.get("http://127.0.0.1:8000/spotify/me", {
             headers: {
                 Authorization: `Bearer ${accessToken}`
             }
         })
         .then(res => {
             setUser(res.data);
-            console.log("BACKEND RESPONSE:", res.data);  // ← ADD THIS
+            console.log("BACKEND RESPONSE:", res.data);  
             // Save Spotify user ID
-            localStorage.setItem("spotify_user_id", res.data.spotify_id);
+            localStorage.setItem("spotify_user_id", res.data.id);
 
-            console.log("Spotify User ID:", res.data.spotify_id);
+            console.log("Spotify User ID:", res.data.id);
         })
         .catch(err => console.error("Error fetching user id:", err));
 
       }, [accessToken]);
 
-      const handleLoadFollowList = async (type) => {
-        if (!dbUser?._id) return;
-    
-        try {
-            const res = await axios.get(
-              `http://127.0.0.1:8000/user/${dbUser._id}/${type}`
-            );
-            setActiveList(type);
-            setListUsers(res.data); // array of user docs
-        } catch (err) {
-            console.error(`Error loading ${type}:`, err);
-        }
-    };
     return (
         <div>
             <Header/>
@@ -110,36 +129,20 @@ function Profile () {
                 <div className="profile-box">
                     <div>
                         <img className="profile-img" src={user?.images[0].url}/>
-                        {/* <div className="profile-icons">
+                        {<div className="profile-icons">
                             <img className="profile-icon" src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/84/Spotify_icon.svg/250px-Spotify_icon.svg.png"/>
                             <img className="profile-icon" src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5f/Apple_Music_icon.svg/2048px-Apple_Music_icon.svg.png"/>
                             <img className="profile-icon" src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/6a/Youtube_Music_icon.svg/2048px-Youtube_Music_icon.svg.png"/>
-
-                        </div> */}
+                        </div>}
                     </div>
 
                     <div>
                         <h1>{user?.display_name || "Loading..."}</h1>
-                        <h2>
-                        <span
-                            className="clickable-text"
-                            onClick={() => handleLoadFollowList('followers')}
-                        >
-                            {dbUser?.followers?.length ?? 0} Followers
-                        </span>
-                        {" "}
-                        <span
-                            className="clickable-text"
-                            onClick={() => handleLoadFollowList('following')}
-                        >
-                            {dbUser?.following?.length ?? 0} Following
-                        </span>
-                        </h2>
-
+                        <h2>25 Followers 27 Following</h2>
                         <h2>uiuc cs '27</h2>
                     </div>
                 </div>
-                            
+
                 <div>
                     <div className="ratings-box">
                         <Link to='/user/ratings'>
@@ -168,14 +171,7 @@ function Profile () {
                     <div className="rectangle"></div>
                     <img/>
 
-                    <h1>Most Listened to Albums</h1>
-                    <div className="top-spacing">
-                        <img className="top-album" src="https://upload.wikimedia.org/wikipedia/en/9/9b/Tame_Impala_-_Currents.png"/>
-                        <img className="top-album" src="https://upload.wikimedia.org/wikipedia/en/9/9b/Tame_Impala_-_Currents.png"/>
-                        <img className="top-album" src="https://upload.wikimedia.org/wikipedia/en/9/9b/Tame_Impala_-_Currents.png"/>
-                        <img className="top-album" src="https://upload.wikimedia.org/wikipedia/en/9/9b/Tame_Impala_-_Currents.png"/>
-                    </div>
-                    <div className="rectangle"></div>
+                    <MostListenedAlbums spotifyId={user?.id || user?.spotify_id || localStorage.getItem("spotify_user_id")} />
                 </div>
 
                 <div className="top-artist-container">
@@ -199,19 +195,6 @@ function Profile () {
                     
                 </div>
             </div>
-            <Followers
-                isOpen={!!activeList}
-                type={activeList}
-                users={listUsers}
-                onClose={() => setActiveList(null)}
-                onUserClick={(u) => {
-                    // window.location.href = `/user/profile/${u._id}`;
-                    window.open(`https://open.spotify.com/user/${u.spotify_id}`, "_blank");
-                    console.log("Clicked user:", u);
-                }}
-                />
-
-
         </div>
     );
 }
