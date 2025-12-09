@@ -147,15 +147,11 @@ function Review({ ratingId, userId }) {
                       </div>
 
                       <div className="likes-display" onClick={handleLikes} style={{ cursor: "pointer" }}>
-                      <img
-                        className="heart"
-                        src={
-                          liked
-                            ? <i class="fa-solid fa-heart"></i> // filled heart
-                            : <i class="fa-regular fa-heart"></i> // outline heart
-                        }
-                        alt="like"
-                      />
+                      {liked ? (
+                        <i className="fa-solid fa-heart"></i>
+                      ) : (
+                        <i className="fa-regular fa-heart"></i>
+                      )}
                       <span>{rating.likes}</span>
                     </div>
                   </div>

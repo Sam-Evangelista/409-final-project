@@ -6,7 +6,7 @@ import TracklistRanking from '../components/TracklistRanking';
 import axios from "axios";
 import { useNavigate } from 'react-router-dom';
 import { getTracksBatch } from '../utils/spotifyCache';
-import { getFromCache, setInCache, TTL, removeFromCache, CACHE_KEYS } from '../utils/cache';
+import { getFromCache, setInCache, TTL, removeFromCache, clearCacheByPrefix, CACHE_KEYS } from '../utils/cache';
 
 import '@smastrom/react-rating/style.css';
 
@@ -131,6 +131,9 @@ function RatingCreator() {
             // Invalidate ratings cache
             removeFromCache(CACHE_KEYS.ratings());
             removeFromCache(CACHE_KEYS.userRatings(user.display_name || user.username || 'Unknown User'));
+
+            // Clear all following feed caches since followers might see this new rating
+            clearCacheByPrefix('following_ratings_');
         } catch (err) {
             console.error('Error submitting rating:', err.response?.data ?? err.message);
         }

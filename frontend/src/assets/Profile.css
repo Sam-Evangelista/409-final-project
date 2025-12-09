@@ -1,7 +1,7 @@
 .profile-img {
     width: 150px;
     height: 150px;
-    border-radius: 50%;
+    border-radius: 25%;
     object-fit: cover;
     border: 3px solid #E4C8B3;
 }
@@ -54,6 +54,78 @@
     color: #333;
 }
 
+.ratings-loading {
+    color: #666;
+    font-style: italic;
+    margin: 0;
+}
+
+.ratings-preview {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+}
+
+.rating-preview-item {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    background-color: rgba(255, 255, 255, 0.5);
+    padding: 12px;
+    border-radius: 8px;
+}
+
+.rating-preview-cover {
+    width: 70px;
+    height: 70px;
+    object-fit: cover;
+    border-radius: 6px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+    flex-shrink: 0;
+}
+
+.rating-preview-info {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.rating-preview-album {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #1a1a1a;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.rating-preview-artist {
+    margin: 0;
+    font-size: 0.95rem;
+    color: #4a4a4a;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.rating-preview-stars {
+    font-size: 1.2rem;
+    color: #fbbf24;
+    letter-spacing: 2px;
+    flex-shrink: 0;
+}
+
+.no-ratings-message {
+    color: #666;
+    font-style: italic;
+    margin: 0;
+    text-align: center;
+}
+
 .profile-box {
     display: flex;
     align-items: center;
@@ -71,6 +143,56 @@
     font-size: 1rem;
     font-weight: 400;
     opacity: 0.85;
+}
+
+.currently-playing {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    background-color: rgba(228, 200, 179, 0.6);
+    padding: 10px 14px;
+    border-radius: 10px;
+    margin-top: 12px;
+    max-width: 220px;
+}
+
+.currently-playing-art {
+    width: 55px;
+    height: 55px;
+    object-fit: cover;
+    border-radius: 6px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+.currently-playing-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.currently-playing-track {
+    margin: 0;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #1a1a1a;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.currently-playing-artist {
+    margin: 3px 0 0 0;
+    font-size: 0.85rem;
+    color: #333;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.currently-playing-time {
+    margin: 4px 0 0 0;
+    font-size: 0.75rem;
+    color: #555;
+    font-weight: 500;
 }
 
 .profile-icon {

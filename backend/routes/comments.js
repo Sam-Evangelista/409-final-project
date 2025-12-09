@@ -79,7 +79,23 @@ router.post('/', async (req, res) => {
 
         rating.comments.push(newComment._id);
         await rating.save();
-        res.status(201).json(newComment);
+
+        // Populate user info before returning
+        const populatedComment = await Comment.findById(newComment._id)
+            .populate('user_id', 'username icon');
+
+        // Format response to match frontend expectations
+        const formatted = {
+            _id: populatedComment._id,
+            username: populatedComment.user_id.username,
+            icon: populatedComment.user_id.icon,
+            comment_body: populatedComment.comment_body,
+            likes: populatedComment.likes,
+            date: populatedComment.date,
+            child_comments: []
+        };
+
+        res.status(201).json(formatted);
     } catch (err) {
         console.error(err);
         res.status(500).json({ message: err.message });

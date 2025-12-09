@@ -6,7 +6,7 @@ import { Link, useNavigate } from "react-router";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { useUser } from "../context/UserContext";
-import { getTopArtists, getTopTracks } from "../utils/spotifyCache";
+import { getTopArtists, getTopTracks, getAlbumsBatch } from "../utils/spotifyCache";
 import { getFromCache, setInCache, CACHE_KEYS, TTL } from "../utils/cache";
 import {
     USE_FAKE_DATA,
@@ -104,6 +104,10 @@ function Profile () {
     const [selectedTopAlbums, setSelectedTopAlbums] = useState([]);
     const [topAlbumsData, setTopAlbumsData] = useState([]);
     const [localDbUser, setLocalDbUser] = useState(null);
+    const [userRatings, setUserRatings] = useState([]);
+    const [loadingRatings, setLoadingRatings] = useState(true);
+    const [currentlyPlaying, setCurrentlyPlaying] = useState(null);
+    const [localProgress, setLocalProgress] = useState(0);
 
     const navigate = useNavigate();
 
@@ -270,6 +274,148 @@ function Profile () {
         }
     }, [localDbUser]);
 
+    // Fetch user ratings preview (up to 2 ratings)
+    useEffect(() => {
+        if (!localDbUser?.username || !accessToken) {
+            setLoadingRatings(false);
+            return;
+        }
+
+        const fetchUserRatings = async () => {
+            try {
+                setLoadingRatings(true);
+
+                // Check cache first
+                const cacheKey = CACHE_KEYS.userRatings(localDbUser.username);
+                const cachedRatings = getFromCache(cacheKey);
+
+                let ratingsData;
+                if (cachedRatings) {
+                    ratingsData = cachedRatings;
+                } else {
+                    const ratingsRes = await axios.get(
+                        `http://127.0.0.1:8000/ratings/user/${localDbUser.username}`
+                    );
+                    const userRatingsData = ratingsRes.data;
+
+                    if (userRatingsData.length === 0) {
+                        setUserRatings([]);
+                        setLoadingRatings(false);
+                        return;
+                    }
+
+                    // Get unique album IDs
+                    const albumIds = [...new Set(userRatingsData.map(r => r.album_id).filter(Boolean))];
+
+                    // Batch fetch albums
+                    const albums = await getAlbumsBatch(albumIds, accessToken);
+
+                    // Create album map
+                    const albumMap = {};
+                    albums.forEach(album => {
+                        if (album) {
+                            albumMap[album.id] = album;
+                        }
+                    });
+
+                    // Combine ratings with album data
+                    ratingsData = userRatingsData.map(rating => {
+                        const album = albumMap[rating.album_id];
+                        return {
+                            ...rating,
+                            albumCover: album?.images?.[1]?.url || album?.images?.[0]?.url,
+                            albumName: album?.name || rating.album,
+                            artist: album?.artists?.[0]?.name || 'Unknown Artist',
+                        };
+                    });
+
+                    // Cache the result
+                    setInCache(cacheKey, ratingsData, TTL.MEDIUM);
+                }
+
+                // Only show first 2 ratings
+                setUserRatings(ratingsData.slice(0, 2));
+            } catch (error) {
+                console.error("Error fetching user ratings:", error);
+                setUserRatings([]);
+            } finally {
+                setLoadingRatings(false);
+            }
+        };
+
+        fetchUserRatings();
+    }, [localDbUser?.username, accessToken]);
+
+    // Fetch currently playing track
+    useEffect(() => {
+        if (!accessToken) return;
+
+        const fetchCurrentlyPlaying = async () => {
+            try {
+                const response = await axios.get('http://127.0.0.1:8000/spotify/currently-playing', {
+                    headers: {
+                        Authorization: `Bearer ${accessToken}`
+                    }
+                });
+
+                if (response.data.isPlaying) {
+                    setCurrentlyPlaying(response.data);
+                    setLocalProgress(response.data.progressMs);
+                } else {
+                    setCurrentlyPlaying(null);
+                    setLocalProgress(0);
+                }
+            } catch (error) {
+                console.error('Error fetching currently playing:', error);
+                setCurrentlyPlaying(null);
+                setLocalProgress(0);
+            }
+        };
+
+        fetchCurrentlyPlaying();
+        // Poll every 5 seconds to sync with server
+        const syncInterval = setInterval(fetchCurrentlyPlaying, 5000);
+
+        return () => clearInterval(syncInterval);
+    }, [accessToken]);
+
+    // Local timer that increments progress every second
+    useEffect(() => {
+        if (!currentlyPlaying || !currentlyPlaying.isPlaying) return;
+
+        const timer = setInterval(() => {
+            setLocalProgress(prev => {
+                const newProgress = prev + 1000;
+
+                // If we've reached or exceeded the duration, fetch new track
+                if (newProgress >= currentlyPlaying.durationMs) {
+                    // Trigger a refresh to get next track
+                    axios.get('http://127.0.0.1:8000/spotify/currently-playing', {
+                        headers: {
+                            Authorization: `Bearer ${accessToken}`
+                        }
+                    }).then(response => {
+                        if (response.data.isPlaying) {
+                            setCurrentlyPlaying(response.data);
+                            setLocalProgress(response.data.progressMs);
+                        } else {
+                            setCurrentlyPlaying(null);
+                            setLocalProgress(0);
+                        }
+                    }).catch(error => {
+                        console.error('Error fetching next track:', error);
+                    });
+
+                    return 0;
+                }
+
+                return newProgress;
+            });
+        }, 1000);
+
+        return () => clearInterval(timer);
+    }, [currentlyPlaying, accessToken]);
+
     return (
         <div>
             <Header/>
@@ -278,11 +424,6 @@ function Profile () {
                 <div className="profile-box">
                     <div>
                         <img className="profile-img" src={user?.images?.[0]?.url || "https://cdn-icons-png.flaticon.com/512/1144/1144760.png"}/>
-                        {<div className="profile-icons">
-                            <img className="profile-icon" src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/84/Spotify_icon.svg/250px-Spotify_icon.svg.png"/>
-                            <img className="profile-icon" src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5f/Apple_Music_icon.svg/2048px-Apple_Music_icon.svg.png"/>
-                            <img className="profile-icon" src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/6a/Youtube_Music_icon.svg/2048px-Youtube_Music_icon.svg.png"/>
-                        </div>}
                     </div>
 
                     <div>
@@ -316,6 +457,23 @@ function Profile () {
                                 {localDbUser?.bio || "Add a bio..."}
                             </h2>
                         )}
+
+                        {currentlyPlaying && (
+                            <div className="currently-playing">
+                                <img
+                                    src={currentlyPlaying.albumArt}
+                                    alt={currentlyPlaying.trackName}
+                                    className="currently-playing-art"
+                                />
+                                <div className="currently-playing-info">
+                                    <p className="currently-playing-track">{currentlyPlaying.trackName}</p>
+                                    <p className="currently-playing-artist">{currentlyPlaying.artist}</p>
+                                    <p className="currently-playing-time">
+                                        {Math.floor(localProgress / 60000)}:{String(Math.floor((localProgress % 60000) / 1000)).padStart(2, '0')} / {Math.floor(currentlyPlaying.durationMs / 60000)}:{String(Math.floor((currentlyPlaying.durationMs % 60000) / 1000)).padStart(2, '0')}
+                                    </p>
+                                </div>
+                            </div>
+                        )}
                     </div>
                 </div>
 
@@ -329,7 +487,30 @@ function Profile () {
                         </Link>
                     </div>
                     <div className="user-ratings-box">
-                        <h1>Testing</h1>
+                        {loadingRatings ? (
+                            <p className="ratings-loading">Loading ratings...</p>
+                        ) : userRatings.length > 0 ? (
+                            <div className="ratings-preview">
+                                {userRatings.map((rating) => (
+                                    <div key={rating._id} className="rating-preview-item">
+                                        <img
+                                            src={rating.albumCover || '/default-album.png'}
+                                            alt={rating.albumName}
+                                            className="rating-preview-cover"
+                                        />
+                                        <div className="rating-preview-info">
+                                            <p className="rating-preview-album">{rating.albumName}</p>
+                                            <p className="rating-preview-artist">{rating.artist}</p>
+                                        </div>
+                                        <div className="rating-preview-stars">
+                                            {'★'.repeat(Math.floor(rating.stars))}{'☆'.repeat(5 - Math.floor(rating.stars))}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        ) : (
+                            <p className="no-ratings-message">No ratings yet.</p>
+                        )}
                     </div>
                 </div>
             </div>

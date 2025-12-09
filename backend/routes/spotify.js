@@ -24,7 +24,7 @@ function generateRandomString(length) {
 
 router.get('/login', (req, res) => {
   var state = generateRandomString(16);
-  var scope = 'user-read-private user-read-email user-top-read user-read-recently-played';
+  var scope = 'user-read-private user-read-email user-top-read user-read-recently-played user-read-currently-playing user-read-playback-state';
 
   res.redirect('https://accounts.spotify.com/authorize?' +
     querystring.stringify({
@@ -324,6 +324,59 @@ router.get('/recently-played', (req, res) => {
     }
 
     res.json(albums);
+  });
+});
+
+// GET /spotify/currently-playing - Get user's currently playing track
+router.get('/currently-playing', (req, res) => {
+  let access_token = req.query.access_token;
+
+  if (!access_token && req.headers.authorization) {
+    const parts = req.headers.authorization.split(' ');
+    if (parts[0] === 'Bearer' && parts[1]) {
+      access_token = parts[1];
+    }
+  }
+
+  if (!access_token) {
+    return res.status(400).json({ error: 'missing_access_token' });
+  }
+
+  const options = {
+    url: 'https://api.spotify.com/v1/me/player/currently-playing',
+    headers: {
+      Authorization: 'Bearer ' + access_token
+    },
+    json: true
+  };
+
+  request.get(options, (error, response, body) => {
+    if (error) {
+      console.error('Error calling /currently-playing:', error);
+      return res.status(500).json({ error: 'spotify_request_failed' });
+    }
+
+    // 204 means nothing is playing
+    if (response.statusCode === 204 || !body || !body.item) {
+      return res.json({ isPlaying: false });
+    }
+
+    if (response.statusCode !== 200) {
+      console.error('Spotify /currently-playing error:', body);
+      return res
+        .status(response.statusCode)
+        .json({ error: 'spotify_api_error', details: body });
+    }
+
+    const track = body.item;
+    res.json({
+      isPlaying: body.is_playing,
+      trackName: track.name,
+      artist: track.artists?.[0]?.name || 'Unknown Artist',
+      albumArt: track.album?.images?.[0]?.url || null,
+      progressMs: body.progress_ms,
+      durationMs: track.duration_ms
+    });
   });
 });
 
