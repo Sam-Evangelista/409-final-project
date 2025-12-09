@@ -115,4 +115,24 @@ router.get('/album/:album', async (req, res) => {
     }
 })
 
+router.get('/popular/trending', async (req, res) => {
+    try {
+        const limit = parseInt(req.query.limit) || 10;
+        const daysAgo = parseInt(req.query.days) || 7;
+        
+        const dateThreshold = new Date();
+        dateThreshold.setDate(dateThreshold.getDate() - daysAgo);
+        
+        const trendingRatings = await Rating.find({
+            date: { $gte: dateThreshold }
+        })
+            .sort({ likes: -1, date: -1 })
+            .limit(limit);
+        
+        res.json(trendingRatings);
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+});
+
 module.exports = router

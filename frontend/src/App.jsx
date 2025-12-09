@@ -30,7 +30,7 @@ function App() {
           return;
         }
 
-        const ratingRes = await axios.get(`http://127.0.0.1:8000/ratings/`);
+        const ratingRes = await axios.get(`http://127.0.0.1:8000/ratings/popular/trending`);
         const all_ratings = ratingRes.data.map(rating => rating._id);
 
         // Cache for 1 minute (ratings change frequently)
