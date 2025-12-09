@@ -99,7 +99,7 @@ function Review({ ratingId, userId }) {
 
         const res = {
           isLiked: true,
-          likes: 2
+          likes: 1
         }
   
         // Update with actual backend values
