@@ -65,7 +65,7 @@ const getUserFollowing = async (req, res) => {
       return res.status(404).json({ error: 'User not found' });
     }
 
-    res.json(user.followers);
+    res.json(user.following);
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
