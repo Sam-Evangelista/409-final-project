@@ -125,7 +125,7 @@ router.get('/callback', async (req, res) => {
     const topAlbums = [
       ...new Set(
         topTracks
-          .map(track => track.album?.name)
+          .map(track => track.album?.id)
           .filter(Boolean)
       )
     ].slice(0, 4);
