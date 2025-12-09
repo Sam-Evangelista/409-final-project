@@ -42,12 +42,12 @@ router.post('/', async(req, res) => {
         username: req.body.username,
         album: req.body.album,
         album_id: req.body.album_id,
-        likes: req.body.likes,
+        likes: req.body.likes || 0,
         stars: req.body.stars,
         comments: req.body.comments,
         review: req.body.review,
         tracklist_rating: req.body.tracklist_rating,
-        date: req.body.date
+        //date: req.body.date
     })
 
     try {
