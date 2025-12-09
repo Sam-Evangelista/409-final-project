@@ -197,8 +197,8 @@ const getTopAlbumArtwork = async (req, res) => {
 
 router.post('/', createUser);
 router.get('/', getUsers);
-router.get('/:id', getUserById);
 router.get('/spotify/:spotifyId', getUserBySpotifyId);
+router.get('/:id', getUserById);
 router.put('/:id', updateUser);
 router.delete('/:id', deleteUser);
 
@@ -209,5 +209,7 @@ router.get('/:id/following', getUserFollowing)
 router.get('/:id/followers', getUserFollowers)
 
 router.get('/:id/top-albums', getTopAlbumArtwork);
+
+
 
 module.exports = router;

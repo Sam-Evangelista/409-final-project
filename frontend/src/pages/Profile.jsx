@@ -56,18 +56,18 @@ function Profile () {
             setTopTracks(res.data.items || []);
         }).catch(err => console.error("Error fetching top tracks:", err));
         
-        axios.get("http://127.0.0.1:8000/spotify/me", {
+        axios.get("http://127.0.0.1:8000/user/spotify/me", {
             headers: {
                 Authorization: `Bearer ${accessToken}`
             }
         })
         .then(res => {
             setUser(res.data);
-
+            console.log("BACKEND RESPONSE:", res.data);  // ← ADD THIS
             // Save Spotify user ID
-            localStorage.setItem("spotify_user_id", res.data.id);
+            localStorage.setItem("spotify_user_id", res.data.spotify_id);
 
-            console.log("Spotify User ID:", res.data.id);
+            console.log("Spotify User ID:", res.data.spotify_id);
         })
         .catch(err => console.error("Error fetching user id:", err));
 
@@ -80,7 +80,8 @@ function Profile () {
             <div className="profile-top">
                 <div className="profile-box">
                     <div>
-                        <img className="profile-img" src={user?.images[0].url}/>
+                        {/* <img className="profile-img" src={user?.images[0].url}/> */}
+                        <img className="profile-img" src={user?.icon || ""}/>
                         <div className="profile-icons">
                             <img className="profile-icon" src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/84/Spotify_icon.svg/250px-Spotify_icon.svg.png"/>
                             <img className="profile-icon" src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5f/Apple_Music_icon.svg/2048px-Apple_Music_icon.svg.png"/>

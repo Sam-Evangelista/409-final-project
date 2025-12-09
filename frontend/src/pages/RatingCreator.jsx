@@ -124,8 +124,9 @@ function RatingCreator() {
         console.log("Handling submit");
 
         //hardcoded for now, needs to get from session cookie sent from backend???
-        const user_id = '6934c1425922a9cee32e9a28';
-        const username = 'maya ajit';
+        // const user_id = '6934c1425922a9cee32e9a28';
+        const user_id = localStorage.getItem("spotify_token");
+        const username = 'maya ajit hello';
 
         const trackIdStrings = tracks.map(track => track.id);
 
