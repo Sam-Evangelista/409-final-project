@@ -115,6 +115,20 @@ router.get('/album/:album', async (req, res) => {
     }
 })
 
+router.get('/popular/ratings', async (req, res) => {
+    try {
+        const limit = parseInt(req.query.limit) || 10;
+        
+        const popularRatings = await Rating.find()
+            .sort({ likes: -1 }) // Sort by likes descending
+            .limit(limit);
+        
+        res.json(popularRatings);
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+});
+
 router.get('/popular/trending', async (req, res) => {
     try {
         const limit = parseInt(req.query.limit) || 10;
