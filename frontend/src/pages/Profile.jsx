@@ -213,7 +213,6 @@ function Profile () {
 
 
         </div>
-        </div>
     );
 }
 
