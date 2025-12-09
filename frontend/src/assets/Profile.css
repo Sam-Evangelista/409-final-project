@@ -91,3 +91,115 @@
     /* background-color: #D1AFA0; */
     cursor: pointer;
 }
+
+.clickable-text {
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+
+
+.modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.55);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+  }
+  
+  .modal-box {
+    background: #E4C8B3;   
+    border-radius: 12px;
+    width: 360px;
+    max-height: 70vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+  }
+  
+  .modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    padding: 12px 16px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2); 
+    color: white; 
+  }
+  
+  .modal-header h1 {
+    font-size: 1.1rem;
+    margin: 0;
+    color: white;           
+  }
+  
+  .modal-close {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    border: none;
+    background: transparent;
+    color: white;           
+    font-size: 1.2rem;
+    cursor: pointer;
+  }
+  
+  .modal-body {
+    padding: 8px 0;
+    overflow-y: auto;
+  }
+  
+  .modal-empty {
+    padding: 16px;
+    text-align: center;
+    color: white;           
+  }
+  
+  .modal-user-row {
+    display: flex;
+    align-items: center;
+    padding: 10px 16px;
+    gap: 12px;
+    cursor: pointer;
+  }
+  
+  .modal-user-row:hover {
+    background: rgba(255, 255, 255, 0.12);  
+  }
+  
+  .modal-user-avatar-img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid white;    
+  }
+  
+  .modal-user-info {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .modal-username {
+    margin: 0;
+    font-size: 0.95rem;
+    font-weight: bold;
+    color: white;              
+  }
+  
+  .modal-handle {
+    margin: 0;
+    font-size: 0.82rem;
+    color: rgba(255, 255, 255, 0.8); 
+  }
+  
+  .clickable-row {
+    cursor: pointer;
+  }
+  
+
+
