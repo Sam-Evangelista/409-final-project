@@ -270,11 +270,15 @@ function Profile () {
     useEffect(() => {
         if (viewingOtherUser) {
             // Load from database for other users
-            if (localDbUser?.top_artists) {
+            if (localDbUser?.top_artists && Array.isArray(localDbUser.top_artists)) {
                 setTopArtists(localDbUser.top_artists);
+            } else {
+                setTopArtists([]);
             }
-            if (localDbUser?.top_songs) {
+            if (localDbUser?.top_songs && Array.isArray(localDbUser.top_songs)) {
                 setTopTracks(localDbUser.top_songs);
+            } else {
+                setTopTracks([]);
             }
             return;
         }
@@ -311,7 +315,7 @@ function Profile () {
         };
 
         fetchData();
-    }, [accessToken, user?.id, viewingOtherUser, localDbUser?._id]);
+    }, [accessToken, user?.id, viewingOtherUser, localDbUser]);
 
     // Set top albums data when localDbUser changes
     useEffect(() => {
@@ -593,7 +597,11 @@ function Profile () {
                         <div className="rectangle"></div>
                     </div>
 
-                    {!viewingOtherUser && user?.id && <MostListenedAlbums spotifyId={user.id} />}
+                    {viewingOtherUser ? (
+                        localDbUser?.spotify_id && <MostListenedAlbums spotifyId={localDbUser.spotify_id} />
+                    ) : (
+                        user?.id && <MostListenedAlbums spotifyId={user.id} />
+                    )}
                 </div>
 
                 <div className="artists-songs-section">
