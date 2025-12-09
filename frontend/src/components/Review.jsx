@@ -8,8 +8,7 @@ import axios from "axios";
 import '@fortawesome/fontawesome-free/css/all.min.css';
 
 
-const ACCESS_TOKEN = process.env.REACT_APP_ACCESS_TOKEN;
-console.log("Access token:", ACCESS_TOKEN);
+
 
 function Review({ ratingId, userId }) {
     const [rating, setRating] = useState(null);
@@ -20,6 +19,12 @@ function Review({ ratingId, userId }) {
     const [liked, setLiked] = useState(false);
 
     useEffect(() => {
+      const ACCESS_TOKEN = localStorage.getItem("spotify_token");
+      // const search = window.location.search;
+      // const params = new URLSearchParams(search);
+      // const ACCESS_TOKEN = params.get('access_token');
+      // const ACCESS_TOKEN = process.env.REACT_APP_ACCESS_TOKEN;
+      console.log("Review Access token:", ACCESS_TOKEN);
       if (!ratingId) return;
   
       const fetchData = async () => {
@@ -53,12 +58,13 @@ function Review({ ratingId, userId }) {
           setTracks(trackData);
         } catch (error) {
           console.error('Error fetching rating data:', error);
-        }
+        } 
       };
   
       fetchData();
       setLoading(false);
-    }, [ratingId, ACCESS_TOKEN]);
+    // }, [ratingId, ACCESS_TOKEN]);
+    }, [ratingId]);
 
     const handleLikes = async () => {
       try {

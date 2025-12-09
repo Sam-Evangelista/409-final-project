@@ -5,6 +5,7 @@ import Recently from './components/Recently';
 import Review from './components/Review';
 import { useState, useEffect } from "react";
 import axios from "axios";
+import Profile from './pages/Profile';
 
 const example_rating = '693618a841e627ee811604bb'
 const example_user_id = '6934c1425922a9cee32e9a28';
