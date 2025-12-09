@@ -31,25 +31,25 @@
 
 .comments-list {
     display: flex;
-    flex-direction: row;
-    align-items: center;
-    gap: 2rem;
+    flex-wrap: wrap;      /* allow wrapping */
+    gap: 2rem;            /* space between comments */
+    justify-content: flex-start;
+    align-items: flex-start;
 }
 
 .comment-item {
+    flex: 1 1 calc(20% - 2rem); /* 5 per row: 100% / 5 = 20%, minus gap */
+    max-width: 250px;            /* keeps sticky note size */
+    min-width: 200px;            /* optional for responsiveness */
     background-image: url('https://www.clker.com/cliparts/S/s/t/M/q/E/sticky-note-pink-md.png'); /* sticky note background */
     background-size: 100% 100%;      
     background-repeat: no-repeat;
     background-position: center;
-
-    width: 250px;  
     height: 250px;  
-
     display: flex;
     flex-direction: column;
-    justify-content: space-between; 
+    justify-content: space-between;
     padding: 1rem;
-
     color: #4D2727;
     box-sizing: border-box;
     filter: drop-shadow(4px 4px 6px rgba(0,0,0,0.4));
