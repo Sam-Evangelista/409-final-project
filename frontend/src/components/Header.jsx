@@ -4,11 +4,11 @@ import { Link } from 'react-router';
 function Header () {
     return (
         <div className="header">
-            <Link to='/'>
+            <Link to='/home'>
                 <img className='record' src="https://pngimg.com/d/vinyl_PNG18.png"/>
             </Link>
             
-            <Link to='/'>
+            <Link to='/home'>
                 <h1>RecorDB</h1>
             </Link>
             

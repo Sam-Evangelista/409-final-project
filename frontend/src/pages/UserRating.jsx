@@ -15,6 +15,8 @@ function UserRating() {
     const [activeIndex, setActiveIndex] = useState(null);
 
     const ACCESS_TOKEN = localStorage.getItem("spotify_token");
+
+    console.log(ACCESS_TOKEN);
     
 
     const navigate = useNavigate();
