@@ -5,12 +5,13 @@ import { Rating } from '@smastrom/react-rating'
 import TracklistRanking from '../components/TracklistRanking';
 import axios from "axios";
 import { useNavigate } from 'react-router-dom';
+import { useUser } from '../context/UserContext';
+import { getAlbum, getTracksBatch } from '../utils/spotifyCache';
+import { getFromCache, setInCache, TTL } from '../utils/cache';
 
 import '@smastrom/react-rating/style.css'
 
-//replace with call to backend to get access token
 function RatingCreator() {
-    const [user, setUser] = useState(null);
     const [selectedAlbum, setSelectedAlbum] = useState(null);
     const [review, setReview] = useState('');
     const [rating, setRating] = useState(0);
@@ -20,33 +21,23 @@ function RatingCreator() {
 
     const navigate = useNavigate();
 
-    const ACCESS_TOKEN = localStorage.getItem("spotify_token");
+    // Get user data from context (cached)
+    const { spotifyUser: user, dbUser, getToken } = useUser();
+    const ACCESS_TOKEN = getToken();
 
-
-    useEffect(() => {
-        if (!ACCESS_TOKEN) {
-            console.log("No access token found");
-            return;
-        }
-    
-        axios.get("http://127.0.0.1:8000/spotify/me", {
-            headers: {
-                Authorization: `Bearer ${ACCESS_TOKEN}`
-            }
-        })
-        .then(res => {
-            setUser(res.data);
-        })
-        .catch(err => {
-            console.error("Error fetching /me:", err);
-        });
-      });
-
-    // Fetch tracks when album is selected
+    // Fetch tracks when album is selected (with caching)
     useEffect(() => {
         const fetchAlbumTracks = async () => {
-            if (!selectedAlbum?.id) return;
-            
+            if (!selectedAlbum?.id || !ACCESS_TOKEN) return;
+
+            // Check cache first
+            const cacheKey = `album_tracks_${selectedAlbum.id}`;
+            const cached = getFromCache(cacheKey);
+            if (cached) {
+                setTracks(cached);
+                return;
+            }
+
             setLoadingTracks(true);
             try {
                 const response = await fetch(
@@ -57,32 +48,20 @@ function RatingCreator() {
                         },
                     }
                 );
-                
+
                 if (!response.ok) {
                     throw new Error('Failed to fetch tracks');
                 }
-                
+
                 const data = await response.json();
-                // Fetch detailed track info to get duration
-                const trackIds = data.items.map(track => track.id).join(',');
-                
-                if (trackIds) {
-                    const trackDetailsResponse = await fetch(
-                        `https://api.spotify.com/v1/tracks?ids=${trackIds}`,
-                        {
-                            headers: {
-                                Authorization: `Bearer ${ACCESS_TOKEN}`,
-                            },
-                        }
-                    );
-                    
-                    if (trackDetailsResponse.ok) {
-                        const trackDetailsData = await trackDetailsResponse.json();
-                        setTracks(trackDetailsData.tracks || []);
-                    } else {
-                        // Fallback to basic track info if detailed fetch fails
-                        setTracks(data.items || []);
-                    }
+                const trackIds = data.items.map(track => track.id);
+
+                if (trackIds.length > 0) {
+                    // Use cached batch fetch
+                    const trackDetails = await getTracksBatch(trackIds, ACCESS_TOKEN);
+                    // Cache the album tracks result
+                    setInCache(cacheKey, trackDetails, TTL.PERMANENT);
+                    setTracks(trackDetails);
                 } else {
                     setTracks(data.items || []);
                 }
@@ -95,7 +74,7 @@ function RatingCreator() {
         };
 
         fetchAlbumTracks();
-    }, [selectedAlbum]);
+    }, [selectedAlbum, ACCESS_TOKEN]);
 
     const handleAlbumSelect = (album) => {
         setSelectedAlbum(album);
@@ -120,20 +99,16 @@ function RatingCreator() {
     };
 
     const handleSubmit = () => {
-        //needs to send to backend
-
-        console.log("Handling submit");
-
-        //hardcoded for now, needs to get from session cookie sent from backend???
-        // const user_id = '6934c1425922a9cee32e9a28';
-        const user_id = localStorage.getItem("spotify_token");
-        const username = 'maya ajit hello';
+        if (!dbUser?._id) {
+            console.error("No user ID found");
+            return;
+        }
 
         const trackIdStrings = tracks.map(track => track.name);
 
         axios.post('http://127.0.0.1:8000/ratings/', {
-            user_id: user_id ,
-            username: username,
+            user_id: dbUser._id,
+            username: dbUser.username,
             album: selectedAlbum.name,
             album_id: selectedAlbum.id,
             album_cover: selectedAlbum.images[0].url,
@@ -142,11 +117,16 @@ function RatingCreator() {
             tracklist_rating: trackIdStrings,
           })
           .then(function (response) {
-            console.log(response.data); // Access the response data from the server
+            console.log(response.data);
             setSubmitted(true);
+            // Invalidate ratings cache since we added a new one
+            import('../utils/cache').then(({ removeFromCache, CACHE_KEYS }) => {
+                removeFromCache(CACHE_KEYS.ratings());
+                removeFromCache(CACHE_KEYS.userRatings(dbUser.username));
+            });
           })
           .catch(function (error) {
-            console.error('Error:', error); // Handle any errors during the request
+            console.error('Error:', error);
           });
     };
 
