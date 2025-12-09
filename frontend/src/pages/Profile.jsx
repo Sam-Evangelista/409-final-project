@@ -110,12 +110,12 @@ function Profile () {
                 <div className="profile-box">
                     <div>
                         <img className="profile-img" src={user?.images[0].url}/>
-                        <div className="profile-icons">
+                        {/* <div className="profile-icons">
                             <img className="profile-icon" src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/84/Spotify_icon.svg/250px-Spotify_icon.svg.png"/>
                             <img className="profile-icon" src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5f/Apple_Music_icon.svg/2048px-Apple_Music_icon.svg.png"/>
                             <img className="profile-icon" src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/6a/Youtube_Music_icon.svg/2048px-Youtube_Music_icon.svg.png"/>
 
-                        </div>
+                        </div> */}
                     </div>
 
                     <div>
