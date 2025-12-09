@@ -125,7 +125,7 @@ router.get('/callback', async (req, res) => {
     const mostListenedAlbums = [
       ...new Set(
         topTracks
-          .map(track => track.album?.id)
+          .map(track => track.album?.images?.[0]?.url)
           .filter(Boolean)
       )
     ].slice(0, 4);
