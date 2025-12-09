@@ -1,6 +1,7 @@
 const express = require('express')
 const router = express.Router()
-const Comment = require('../model/comment')
+const Comment = require('../models/comment')
+const Rating = require('../models/rating')
 
 async function getComment(req, res, next) {
     // Middleware to get rating by ID
@@ -24,22 +25,37 @@ router.get('/:id', getComment, (req, res) => {
 
 //create comment
 router.post('/', async (req, res) => {
-    const comment = new Comment({
-        user_id: req.body.user_id,
-        rating_id: req.body.rating_id,
-        comment_body: req.body.comment_body,
-        likes: req.body.likes || 0,
-        child_comments: req.body.child_comments || [],
-        //date: req.body.date
-    })
+    const { user_id, rating_id, comment_body } = req.body;
+
+    if (!user_id || !rating_id || !comment_body) {
+        return res.status(400).json({ message: 'Missing required fields' });
+    }
 
     try {
-        const newComment = await comment.save()
-        res.status(201).json(newComment)
+        const comment = new Comment({
+            user_id,
+            rating_id,
+            comment_body,
+            likes: 0,
+            child_comments: []
+        });
+
+        const newComment = await comment.save();
+
+        const rating = await Rating.findById(rating_id);
+        if (!rating) {
+            return res.status(404).json({ message: 'Rating not found' });
+        }
+
+        rating.comments.push(newComment._id);
+        await rating.save();
+        res.status(201).json(newComment);
     } catch (err) {
-        res.status(400).json({ message: err.message })
+        console.error(err);
+        res.status(500).json({ message: err.message });
     }
-})
+});
+
 
 //delete comment
 router.delete('/:id', getComment, async (req, res) => {
@@ -64,6 +80,7 @@ router.get('/rating/:rating_id', async (req, res) => {
 })
 
 
+
 //reply to a comment
 router.post('/:id/reply', getComment, async (req, res) => {
     try {
@@ -82,3 +99,16 @@ router.post('/:id/reply', getComment, async (req, res) => {
         res.status(400).json({ message: err.message })
     }
 })
+
+//updating likes for comment
+router.patch('/:id/like', getComment, async (req, res) => {
+    try {
+        res.comment.likes += 1; // increment likes by 1
+        await res.comment.save();
+        res.json({ likes: res.comment.likes });
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+});
+
+module.exports = router;
