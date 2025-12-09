@@ -8,45 +8,59 @@ import { useNavigate } from 'react-router-dom';
 const ACCESS_TOKEN = process.env.REACT_APP_ACCESS_TOKEN;
 
 function UserRating() {
+    const [mongoId, setMongoId] = useState(null);
     const [user, setUserInfo] = useState(null);
     const [ratings, setRatings] = useState([]);
     const [loading, setLoading] = useState(true);
     const [activeIndex, setActiveIndex] = useState(null);
+    
 
     const navigate = useNavigate();
 
     // 1. Get currently logged-in user
     //hardcoded for now, needs to get from session cookie sent from backend???
-    const user_id = '6934c1425922a9cee32e9a28';
-    const username = 'maya ajit';
+
+    // const user_id = '6934c1425922a9cee32e9a28';
+    const spotify_id = localStorage.getItem("spotify_user_id");
+    const spotifyId = localStorage.getItem("spotify_user_id");
+
+    useEffect(() => {
+        if (!spotifyId) {
+            console.log("No spotifyId in localStorage");
+            return;
+        }
+
+        axios.get(`http://127.0.0.1:8000/user/spotify/${spotifyId}`)
+            .then(res => {
+                console.log("Mongo user:", res.data);
+                setMongoId(res.data._id);   // store the MongoDB _id
+            })
+            .catch(err => console.error("Error getting MongoDB user:", err));
+    }, [spotifyId]);
+
+    const username = 'maya ajit hi';
 
     // 2. Get user's ratings + album covers
     useEffect(() => {
-        if (!user_id) return;
+        if (!mongoId) return;
 
         const fetchRatings = async () => {
             try {
-                const userRes = await axios.get(`http://127.0.0.1:8000/user/${user_id}`);
-                const userData = userRes.data;
-                setUserInfo(userData);
+                const userRes = await axios.get(`http://127.0.0.1:8000/user/${mongoId}`);
+                console.log("Fetched user:", userRes.data);
+                setUserInfo(userRes.data);
 
-                const res = await axios.get(
-                    `http://127.0.0.1:8000/ratings/user/${userData.username}`
+                const ratingsRes = await axios.get(
+                    `http://127.0.0.1:8000/ratings/user/${userRes.data.username}`
                 );
 
-                const userRatings = res.data;
+                const userRatings = ratingsRes.data;
 
-                // Fetch album covers for each rating
                 const ratingsWithCovers = await Promise.all(
                     userRatings.map(async (rating) => {
-
                         const albumRes = await fetch(
                             `https://api.spotify.com/v1/albums/${rating.album_id}`,
-                            {
-                                headers: {
-                                    Authorization: `Bearer ${ACCESS_TOKEN}`,
-                                },
-                            }
+                            { headers: { Authorization: `Bearer ${ACCESS_TOKEN}` } }
                         );
 
                         const albumData = await albumRes.json();
@@ -69,7 +83,8 @@ function UserRating() {
         };
 
         fetchRatings();
-    }, [username]);
+    }, [mongoId]);
+
 
     if (loading) return <div className="loading">Loading your ratings...</div>;
 
