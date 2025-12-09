@@ -18,8 +18,12 @@ function Review({ ratingId, userId }) {
     const [loading, setLoading] = useState(true);
     const [liked, setLiked] = useState(false);
 
+    console.log("User id:", userId);
+
     useEffect(() => {
       const ACCESS_TOKEN = localStorage.getItem("spotify_token");
+      const spotifyId = localStorage.getItem("spotify_user_id");
+      console.log(spotifyId);
       // const search = window.location.search;
       // const params = new URLSearchParams(search);
       // const ACCESS_TOKEN = params.get('access_token');
@@ -30,6 +34,11 @@ function Review({ ratingId, userId }) {
       const fetchData = async () => {
         try {
 
+          if (!spotifyId) {
+            console.log("No spotifyId in localStorage");
+            return;
+          }
+                
           const userRes = await axios.get(`http://127.0.0.1:8000/user/${userId}`);
           const userData = userRes.data;
           setUserInfo(userData);
