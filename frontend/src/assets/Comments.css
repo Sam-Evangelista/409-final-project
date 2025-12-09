@@ -139,9 +139,10 @@
     background-size: cover; /* fill the box */
     background-position: center;
     background-repeat: no-repeat;
-    
-    width: 400px;      
-    height: 400px;   
+         
+    width: 400px;
+    max-height: 90vh;     /* allows growth but keeps modal inside screen */
+    overflow-y: auto; 
     
     padding: 2rem; 
     border-radius: 10px;
@@ -214,6 +215,15 @@
     display:flex;
     align-items: flex-start;
     flex-direction: column;
+}
+
+.modal-comment-text-container {
+    background-color: #e4b1b6;
+    display:flex;
+    justify-content:flex-start;
+    padding:5px;
+    width:100%;
+    border-radius:10px;
 }
 
 .modal-comment-header {
@@ -335,5 +345,57 @@ FaPlus {
     border: none;
     cursor: pointer;
   }
+
+  .reply-btn {
+    background: none;
+    border: none;
+    color: #6b0f1a;
+    font-weight: bold;
+    cursor: pointer;
+    margin-right: 10px;
+}
+
+.reply-btn:hover {
+    text-decoration: underline;
+}
+
+.reply-box {
+    display: flex;
+    flex-direction: column;
+    align-items:center;
+    gap:1em;
+    width: 100%;
+}
+
+.reply-textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #4D2727;
+    border-radius: 10px;
+    background-color: #f3d3d6;
+    color: #4D2727;
+    font-size: 0.9rem;
+}
+
+.submit-reply-btn {
+    align-self: flex-end;
+    padding: 6px 14px;
+    background-color: #4D2727;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.submit-reply-btn:hover {
+    background-color: #341818;
+}
+
+.modal-actions {
+    display:flex;
+    flex-direction:row;
+    justify-content:flex-end;
+}
+
 
 
