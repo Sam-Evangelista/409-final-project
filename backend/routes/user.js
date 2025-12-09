@@ -153,53 +153,42 @@ const unfollowUser = async (req, res) => {
   }
 };
 
+const refreshSpotifyToken = (refreshToken) => {
+  return new Promise((resolve, reject) => {
+    const client_id = process.env.SPOTIFY_CLIENT_ID;
+    const client_secret = process.env.SPOTIFY_CLIENT_SECRET;
+
+    request.post(
+      {
+        url: 'https://accounts.spotify.com/api/token',
+        form: {
+          grant_type: 'refresh_token',
+          refresh_token: refreshToken
+        },
+        headers: {
+          'Authorization': 'Basic ' + Buffer.from(client_id + ':' + client_secret).toString('base64')
+        },
+        json: true
+      },
+      (err, response, body) => {
+        if (err) return reject(err);
+        if (response.statusCode !== 200) return reject(new Error(`Token refresh failed: ${response.statusCode}`));
+        resolve(body.access_token);
+      }
+    );
+  });
+};
+
 router.get('/:spotifyId/top-albums-art', async (req, res) => {
   try {
-    // 1. Find the user by Spotify ID
     const user = await User.findOne({ spotify_id: req.params.spotifyId });
     if (!user) return res.status(404).json({ error: 'User not found' });
 
-    // 2. Get their Spotify auth token from the authToken collection
-    const tokenDoc = await authToken.findOne({ user_id: user._id });
-    if (!tokenDoc) return res.status(401).json({ error: 'Missing auth token' });
+    const albumUrls = (Array.isArray(user.most_listened_albums) ? user.most_listened_albums : []).slice(0, 4);
 
-    const accessToken = tokenDoc.access_token;
-
-    // 3. Prefer `top_albums`, fallback to `most_listened_albums`, limit to first 4
-    const albumIds = (Array.isArray(user.top_albums) && user.top_albums.length
-      ? user.top_albums
-      : (Array.isArray(user.most_listened_albums) ? user.most_listened_albums : [])
-    ).slice(0, 4);
-
-    // 4. Fetch album details from Spotify using the access token
-    const fetchAlbum = (albumId) =>
-      new Promise((resolve) => {
-        request.get(
-          {
-            url: `https://api.spotify.com/v1/albums/${albumId}`,
-            headers: { Authorization: `Bearer ${accessToken}` },
-            json: true
-          },
-          (err, response, body) => {
-            if (err || response.statusCode !== 200) return resolve(null);
-
-            resolve({
-              spotify_id: body.id,
-              name: body.name,
-              image: body.images?.[0]?.url || null,
-              artist: body.artists?.[0]?.name || null
-            });
-          }
-        );
-      });
-
-    // 5. Wait for all album fetches
-    const albums = await Promise.all(albumIds.map(fetchAlbum));
-
-    // 6. Return array of album artworks
-    res.json(albums.filter(Boolean));
+    res.json(albumUrls);
   } catch (err) {
-    console.error(err);
+    console.error('Error in top-albums-art:', err);
     res.status(500).json({ error: err.message });
   }
 });

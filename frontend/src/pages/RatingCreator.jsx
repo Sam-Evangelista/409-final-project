@@ -129,13 +129,14 @@ function RatingCreator() {
         const user_id = localStorage.getItem("spotify_token");
         const username = 'maya ajit hello';
 
-        const trackIdStrings = tracks.map(track => track.id);
+        const trackIdStrings = tracks.map(track => track.name);
 
         axios.post('http://127.0.0.1:8000/ratings/', {
             user_id: user_id ,
             username: username,
             album: selectedAlbum.name,
             album_id: selectedAlbum.id,
+            album_cover: selectedAlbum.images[0].url,
             stars: rating,
             review: review,
             tracklist_rating: trackIdStrings,

@@ -42,6 +42,8 @@ router.post('/', async(req, res) => {
         username: req.body.username,
         album: req.body.album,
         album_id: req.body.album_id,
+        album_cover: req.body.album_cover,
+        artist: req.body.artist,
         likes: req.body.likes || 0,
         stars: req.body.stars,
         comments: req.body.comments,
