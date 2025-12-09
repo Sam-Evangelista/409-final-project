@@ -122,7 +122,7 @@ router.get('/callback', async (req, res) => {
       });
     });
 
-    const topAlbums = [
+    const mostListenedAlbums = [
       ...new Set(
         topTracks
           .map(track => track.album?.id)
@@ -137,7 +137,7 @@ router.get('/callback', async (req, res) => {
           spotify_id: spotifyId,
           username: displayName,
           icon: icon,
-          top_albums: topAlbums
+          most_listened_albums: mostListenedAlbums
       });
       const saved_user = await user.save(user);
       const auth_Token = new authToken({
@@ -165,7 +165,7 @@ router.get('/callback', async (req, res) => {
       }
         existing.username = displayName;
         existing.icon = icon;
-        existing.top_albums = topAlbums;
+        existing.most_listened_albums = mostListenedAlbums;
         await existing.save();
         await atoken.save();
     }

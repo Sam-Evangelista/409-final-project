@@ -3,6 +3,8 @@ GET http://localhost:8000/ratings
 ###
 GET http://localhost:8000/ratings/691fe1f7806e354f776b7abb
 
+###
+GET http://127.0.0.1:8000/users
 
 ###
 POST http://localhost:8000/ratings
@@ -27,4 +29,12 @@ Content-Type: application/json
 {
     "rating": 4,
     "review": "Still a great album, but not as perfect as I remembered."
+}
+
+###
+POST http://127.0.0.1:8000/users/follow
+Content-Type: application/application/json
+
+{
+
 }
