@@ -22,6 +22,8 @@ root.render(
         <Route path='/signup' element={<SignUp/>}/>
         <Route path='/login' element={<Login/>}/>
         <Route path='/user' element={<Profile/>}/>
+        <Route path='/user/:username' element={<Profile/>}/>
+        <Route path='/user/:username/ratings' element={<UserRating/>}/>
         <Route path='/user/ratings' element={<UserRating/>}/>
         <Route path='/user/ratings/create' element={<RatingCreator/>}/>
       </Routes>

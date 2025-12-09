@@ -2,15 +2,18 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import ReviewModal from "../components/ReviewModal";
 import "../assets/UserRating.css";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useUser } from '../context/UserContext';
 import { getAlbumsBatch } from '../utils/spotifyCache';
 import { getFromCache, setInCache, CACHE_KEYS, TTL } from '../utils/cache';
 
 function UserRating() {
+    const { username } = useParams(); // Get username from URL
     const [ratings, setRatings] = useState([]);
     const [loading, setLoading] = useState(true);
     const [activeIndex, setActiveIndex] = useState(null);
+    const [targetUsername, setTargetUsername] = useState(null);
+    const [targetUser, setTargetUser] = useState(null);
 
     // Get user data from context (cached)
     const { dbUser: user, getToken } = useUser();
@@ -18,14 +21,38 @@ function UserRating() {
 
     const navigate = useNavigate();
 
+    // Determine which user's ratings to fetch
+    useEffect(() => {
+        const fetchTargetUser = async () => {
+            if (username) {
+                setTargetUsername(username);
+                // Fetch the target user's data
+                try {
+                    const usersRes = await axios.get(`http://127.0.0.1:8000/user/`);
+                    const foundUser = usersRes.data.find(u => u.username === username);
+                    if (foundUser) {
+                        setTargetUser(foundUser);
+                    }
+                } catch (err) {
+                    console.error("Error fetching target user:", err);
+                }
+            } else if (user?.username) {
+                setTargetUsername(user.username);
+                setTargetUser(user);
+            }
+        };
+
+        fetchTargetUser();
+    }, [username, user]);
+
     // Fetch user's ratings + album covers using batch API
     useEffect(() => {
-        if (!user?._id || !ACCESS_TOKEN) return;
+        if (!targetUsername || !ACCESS_TOKEN) return;
 
         const fetchRatings = async () => {
             try {
                 // Check cache first for user ratings
-                const cacheKey = CACHE_KEYS.userRatings(user.username);
+                const cacheKey = CACHE_KEYS.userRatings(targetUsername);
                 const cachedRatings = getFromCache(cacheKey);
 
                 if (cachedRatings) {
@@ -35,7 +62,7 @@ function UserRating() {
                 }
 
                 const ratingsRes = await axios.get(
-                    `http://127.0.0.1:8000/ratings/user/${user.username}`
+                    `http://127.0.0.1:8000/ratings/user/${targetUsername}`
                 );
 
                 const userRatings = ratingsRes.data;
@@ -82,7 +109,7 @@ function UserRating() {
         };
 
         fetchRatings();
-    }, [user?._id, user?.username, ACCESS_TOKEN]);
+    }, [targetUsername, ACCESS_TOKEN]);
 
 
     if (loading) return <div className="loading">Loading your ratings...</div>;
@@ -90,12 +117,12 @@ function UserRating() {
     return (
         <div className="user-ratings-page">
             <div className="ratings-header">
-                <img onClick={() => navigate('/user')}
+                <img onClick={() => navigate(username ? `/user/${username}` : '/user')}
                     className="user"
-                    src={user?.icon || "https://cdn-icons-png.flaticon.com/512/1144/1144760.png"}
+                    src={targetUser?.icon || "https://cdn-icons-png.flaticon.com/512/1144/1144760.png"}
                     alt="User"
                 />
-                <h1>{user?.username || "Loading..."}'s Ratings</h1>
+                <h1>{targetUsername || "Loading..."}'s Ratings</h1>
             </div>
 
             <div className="shelf-container">

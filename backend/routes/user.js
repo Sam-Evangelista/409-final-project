@@ -195,6 +195,17 @@ router.get('/:spotifyId/top-albums-art', async (req, res) => {
 
 router.post('/', createUser);
 router.get('/', getUsers);
+router.get('/search/:query', async (req, res) => {
+  try {
+    const query = req.params.query;
+    const users = await User.find({
+      username: { $regex: query, $options: 'i' }
+    }).limit(10);
+    res.json(users);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
 router.get('/spotify/:spotifyId', getUserBySpotifyId);
 router.get('/:id', getUserById);
 router.put('/:id', updateUser);
