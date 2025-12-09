@@ -388,6 +388,18 @@
     object-fit: cover;
 }
 
+.success-buttons {
+    display:flex;
+    flex-direction:row;
+    justify-content: center;
+    gap: 1rem;
+}
+
+.success-title {
+    align-self:center;
+    color:#4D2727;
+}
+
 /* Responsive adjustments */
 @media (max-width: 1024px) {
     .album-review-view {

@@ -4,23 +4,145 @@ import TracklistRanking from './TracklistRanking';
 import Comments from './Comments';
 import '../assets/Review.css';
 import '@smastrom/react-rating/style.css';
+import axios from "axios";
+import '@fortawesome/fontawesome-free/css/all.min.css';
 
-function Review({ ratingId }) {
-    // Placeholder data - will be replaced with actual API call
+
+const ACCESS_TOKEN = process.env.REACT_APP_ACCESS_TOKEN;
+console.log("Access token:", ACCESS_TOKEN);
+
+function Review({ ratingId, userId }) {
     const [rating, setRating] = useState(null);
     const [albumInfo, setAlbumInfo] = useState(null);
     const [tracks, setTracks] = useState([]);
     const [userInfo, setUserInfo] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [liked, setLiked] = useState(false);
+
+    useEffect(() => {
+      if (!ratingId) return;
+  
+      const fetchData = async () => {
+        try {
+
+          const userRes = await axios.get(`http://127.0.0.1:8000/user/${userId}`);
+          const userData = userRes.data;
+          setUserInfo(userData);
+
+          const ratingRes = await axios.get(`http://127.0.0.1:8000/ratings/${ratingId}`);
+          const ratingData = ratingRes.data;
+          setRating(ratingData);
+  
+          const albumRes = await axios.get(`https://api.spotify.com/v1/albums/${ratingData.album_id}`, {
+            headers: { Authorization: `Bearer ${ACCESS_TOKEN}` },
+          });
+          setAlbumInfo(albumRes.data);
+  
+          const trackData = [];
+          for (const trackId of ratingData.tracklist_rating) {
+            const trackRes = await fetch(`https://api.spotify.com/v1/tracks/${trackId}`, {
+              headers: { Authorization: `Bearer ${ACCESS_TOKEN}` },
+            });
+            const trackJson = await trackRes.json();
+            trackData.push({
+              id: trackId,
+              name: trackJson.name,
+              duration: trackJson.duration_ms,
+            });
+          }
+          setTracks(trackData);
+        } catch (error) {
+          console.error('Error fetching rating data:', error);
+        }
+      };
+  
+      fetchData();
+      setLoading(false);
+    }, [ratingId, ACCESS_TOKEN]);
+
+    const handleLikes = async () => {
+      try {
+        // Optimistic UI update for smoothness
+        setLiked(prev => !prev);
+        setRating(prev => ({
+          ...prev,
+          likes: prev.likes + (liked ? -1 : 1),
+        }));
+  
+        //need to call backend endpoint to update rating with a like
+
+        const res = {
+          isLiked: true,
+          likes: 2
+        }
+  
+        // Update with actual backend values
+        setLiked(res.isLiked);
+        setRating(prev => ({ ...prev, likes: res.likes }));
+  
+      } catch (error) {
+        console.error("Error liking review:", error);
+      }
+    };
+
+
+
+
 
     // Placeholder function - will be replaced with actual API call
+    /*
     useEffect(() => {
         // TODO: Replace with actual API call
-        // const fetchRating = async () => {
-        //     const response = await axios.get(`http://127.0.0.1:8000/ratings/${ratingId}`);
-        //     setRating(response.data);
-        // };
-        // fetchRating();
+
+      console.log(ratingId);
+      const fetchRating = async () => {
+          const response = await axios.get(`http://127.0.0.1:8000/ratings/${ratingId}`);
+          setRating(response.data);
+      };
+      fetchRating();
+
+      console.log(rating);
+
+      const getAlbumInfo = async () => {
+        const response = await axios.get(`https://api.spotify.com/v1/albums/${rating.album_id}`,
+          {
+            headers: {
+                Authorization: `Bearer ${ACCESS_TOKEN}`,
+            },
+          }
+        );
+        setAlbumInfo(response.data);
+      };
+      getAlbumInfo();
+
+      const fetchTracks = async () => {
+      const tracks = await Promise.all(
+        rating.tracklist_rating.map(async (track_id) => {
+            const trackRes = await fetch(
+                `https://api.spotify.com/v1/tracks/${track_id}`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${ACCESS_TOKEN}`,
+                    },
+                }
+            );
+
+            const trackData = await trackRes.json();
+
+              return {
+                  id: track_id,
+                  name: trackData.name,
+                  duration: trackData.duration_ms,
+              };
+            })
+          );
+          }
+        fetchTracks();
+        setTracks(tracks);
+
+
+
+  
 
         // Placeholder data based on ratingSchema
         const placeholderRating = {
@@ -67,7 +189,7 @@ function Review({ ratingId }) {
         setTracks(placeholderTracks);
         setUserInfo(placeholderUser);
         setLoading(false);
-    }, [ratingId]);
+    }, [ratingId]);*/
 
     if (loading) {
         return <div className="review-loading">Loading review...</div>;
@@ -84,7 +206,9 @@ function Review({ ratingId }) {
             <div className='left-side'>
               <div className='info'>
                 <div className='album-box'>
-                    <img className='album-img' src={albumInfo?.images?.[0]?.url || ''} alt={albumInfo?.name || 'Album'} />
+                    {albumInfo?.images?.[0]?.url && (
+                      <img className='album-img' src={albumInfo.images[0].url} alt="Album cover" />
+                    )}
                     <img className='vinyl-img' src='https://pngimg.com/d/vinyl_PNG18.png' alt='vinyl' />
                 </div>
 
@@ -102,10 +226,18 @@ function Review({ ratingId }) {
                           />
                       </div>
 
-                      <div className="likes-display">
-                          <img className='heart' src='https://cdn-icons-png.flaticon.com/256/1077/1077035.png' alt='like' />
-                          <span>{rating.likes}</span>
-                      </div>
+                      <div className="likes-display" onClick={handleLikes} style={{ cursor: "pointer" }}>
+                      <img
+                        className="heart"
+                        src={
+                          liked
+                            ? <i class="fa-solid fa-heart"></i> // filled heart
+                            : <i class="fa-regular fa-heart"></i> // outline heart
+                        }
+                        alt="like"
+                      />
+                      <span>{rating.likes}</span>
+                    </div>
                   </div>
               </div>
                 
@@ -118,7 +250,7 @@ function Review({ ratingId }) {
             <div className='right-side'>
 
                 <div className="rater-info">
-                        <img className='rater-img' src={userInfo?.images?.[0]?.url || 'https://cdn-icons-png.flaticon.com/512/1144/1144760.png'} alt={userInfo?.display_name || 'User'} />
+                        <img className='rater-img' src={userInfo?.icon || 'https://cdn-icons-png.flaticon.com/512/1144/1144760.png'} alt={userInfo?.display_name || 'User'} />
                         <div>
                             <i>{rating.username}'s review</i>
                             <p className="review-date">{new Date(rating.date).toLocaleDateString()}</p>
@@ -140,7 +272,7 @@ function Review({ ratingId }) {
 
         </div>
         <div className="review-comments-section">
-        <Comments ratingId={rating._id} commentIds={rating.comments} />
+        <Comments ratingId={rating._id} commentIds={rating.comments  || []} userInfo={userInfo} />
       </div>
       </div>
      

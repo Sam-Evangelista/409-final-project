@@ -41,3 +41,13 @@ a {
   color: inherit;
 }
 
+.ratings-container {
+  display:flex;
+  flex-direction: column;
+  gap: 2em;
+}
+
+.loading-text {
+  color: white;
+}
+
