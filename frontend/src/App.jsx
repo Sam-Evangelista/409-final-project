@@ -13,29 +13,56 @@ function App() {
 
   const [ratings, setRatings] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState('popular'); // 'popular' or 'following'
 
   // Get user data from context (cached)
-  const { dbUser } = useUser();
+  const { dbUser, isAuthenticated } = useUser();
   const userId = dbUser?._id;
 
-  // Fetch all ratings with caching
+  // Fetch ratings based on active tab
   useEffect(() => {
     const fetchRatings = async () => {
       try {
-        // Check cache first
-        const cached = getFromCache(CACHE_KEYS.ratings());
-        if (cached) {
-          setRatings(cached);
-          setLoading(false);
-          return;
+        setLoading(true);
+
+        if (activeTab === 'following') {
+          // Fetch following feed if user is authenticated
+          if (!isAuthenticated || !userId) {
+            setRatings([]);
+            setLoading(false);
+            return;
+          }
+
+          // Check cache first
+          const cached = getFromCache(CACHE_KEYS.followingRatings(userId));
+          if (cached) {
+            setRatings(cached);
+            setLoading(false);
+            return;
+          }
+
+          const ratingRes = await axios.get(`http://127.0.0.1:8000/ratings/following/${userId}`);
+          const following_ratings = ratingRes.data.map(rating => rating._id);
+
+          // Cache for 1 minute
+          setInCache(CACHE_KEYS.followingRatings(userId), following_ratings, TTL.SHORT);
+          setRatings(following_ratings);
+        } else {
+          // Fetch popular ratings
+          const cached = getFromCache(CACHE_KEYS.ratings());
+          if (cached) {
+            setRatings(cached);
+            setLoading(false);
+            return;
+          }
+
+          const ratingRes = await axios.get(`http://127.0.0.1:8000/ratings/popular/ratings`);
+          const all_ratings = ratingRes.data.map(rating => rating._id);
+
+          // Cache for 1 minute (ratings change frequently)
+          setInCache(CACHE_KEYS.ratings(), all_ratings, TTL.SHORT);
+          setRatings(all_ratings);
         }
-
-        const ratingRes = await axios.get(`http://127.0.0.1:8000/ratings/popular/ratings`);
-        const all_ratings = ratingRes.data.map(rating => rating._id);
-
-        // Cache for 1 minute (ratings change frequently)
-        setInCache(CACHE_KEYS.ratings(), all_ratings, TTL.SHORT);
-        setRatings(all_ratings);
       } catch (error) {
         console.error("Error fetching ratings:", error);
       } finally {
@@ -44,7 +71,7 @@ function App() {
     };
 
     fetchRatings();
-  }, []);
+  }, [activeTab, userId, isAuthenticated]);
   
 
 if (loading) return (
@@ -52,9 +79,19 @@ if (loading) return (
       <Header/>
       <div className='columns'>
         <div className='column-1'>
-          <div className='App-container'> 
-            <h1 className='blur-text'>Following</h1>
-            <h1>Popular Ratings</h1>
+          <div className='App-container'>
+            <h1
+              className={!isAuthenticated ? 'blur-text' : 'clickable-tab' + (activeTab === 'following' ? ' active-tab' : '')}
+              onClick={() => isAuthenticated && setActiveTab('following')}
+            >
+              Following
+            </h1>
+            <h1
+              className={'clickable-tab' + (activeTab === 'popular' ? ' active-tab' : '')}
+              onClick={() => setActiveTab('popular')}
+            >
+              Popular Ratings
+            </h1>
           </div>
           <div className='ratings-container'>
               <h1 className="loading-text">Loading ratings...</h1>
@@ -78,14 +115,33 @@ if (loading) return (
       <Header/>
       <div className='columns'>
         <div className='column-1'>
-          <div className='App-container'> 
-            <h1 className='blur-text'>Following</h1>
-            <h1>Popular Ratings</h1>
+          <div className='App-container'>
+            <h1
+              className={!isAuthenticated ? 'blur-text' : 'clickable-tab' + (activeTab === 'following' ? ' active-tab' : '')}
+              onClick={() => isAuthenticated && setActiveTab('following')}
+            >
+              Following
+            </h1>
+            <h1
+              className={'clickable-tab' + (activeTab === 'popular' ? ' active-tab' : '')}
+              onClick={() => setActiveTab('popular')}
+            >
+              Popular Ratings
+            </h1>
           </div>
           <div className='ratings-container'>
-          {ratings.map(rating_id => (
-            <Review key={rating_id} ratingId={rating_id} userId={userId}/>
-          ))}
+          {ratings.length > 0 ? (
+            ratings.map(rating_id => (
+              <Review key={rating_id} ratingId={rating_id} userId={userId}/>
+            ))
+          ) : (
+            <p className="no-ratings-text">
+              {activeTab === 'following'
+                ? "No ratings from people you follow yet. Start following users to see their ratings here!"
+                : "No ratings available"
+              }
+            </p>
+          )}
           </div>
         </div>
         <div className='column-2'>

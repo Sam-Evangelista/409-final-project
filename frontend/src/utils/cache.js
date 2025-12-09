@@ -136,6 +136,7 @@ export const CACHE_KEYS = {
   topArtists: (spotifyId) => `top_artists_${spotifyId}`,
   topTracks: (spotifyId) => `top_tracks_${spotifyId}`,
   ratings: () => 'all_ratings',
+  followingRatings: (userId) => `following_ratings_${userId}`,
   userRatings: (username) => `user_ratings_${username}`,
   followers: (userId) => `followers_${userId}`,
   following: (userId) => `following_${userId}`,

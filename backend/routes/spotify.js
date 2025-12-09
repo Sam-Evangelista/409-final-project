@@ -24,7 +24,7 @@ function generateRandomString(length) {
 
 router.get('/login', (req, res) => {
   var state = generateRandomString(16);
-  var scope = 'user-read-private user-read-email user-top-read';
+  var scope = 'user-read-private user-read-email user-top-read user-read-recently-played';
 
   res.redirect('https://accounts.spotify.com/authorize?' +
     querystring.stringify({
@@ -262,6 +262,68 @@ router.get('/top/:type', (req, res) => {
     }
 
     res.json(body);
+  });
+});
+
+// GET /spotify/recently-played - Get user's recently played tracks
+router.get('/recently-played', (req, res) => {
+  let access_token = req.query.access_token;
+
+  if (!access_token && req.headers.authorization) {
+    const parts = req.headers.authorization.split(' ');
+    if (parts[0] === 'Bearer' && parts[1]) {
+      access_token = parts[1];
+    }
+  }
+
+  if (!access_token) {
+    return res.status(400).json({ error: 'missing_access_token' });
+  }
+
+  const options = {
+    url: 'https://api.spotify.com/v1/me/player/recently-played?limit=20',
+    headers: {
+      Authorization: 'Bearer ' + access_token
+    },
+    json: true
+  };
+
+  request.get(options, (error, response, body) => {
+    if (error) {
+      console.error('Error calling /recently-played:', error);
+      return res.status(500).json({ error: 'spotify_request_failed' });
+    }
+
+    if (response.statusCode !== 200) {
+      console.error('Spotify /recently-played error:', body);
+      return res
+        .status(response.statusCode)
+        .json({ error: 'spotify_api_error', details: body });
+    }
+
+    // Extract unique albums from recently played tracks
+    const tracks = body.items || [];
+    const albums = [];
+    const seenAlbumIds = new Set();
+
+    for (const item of tracks) {
+      const album = item.track?.album;
+      if (album && !seenAlbumIds.has(album.id)) {
+        seenAlbumIds.add(album.id);
+        albums.push({
+          id: album.id,
+          name: album.name,
+          artist: album.artists?.[0]?.name || 'Unknown Artist',
+          image: album.images?.[0]?.url || null,
+          release_date: album.release_date
+        });
+
+        // Stop after 3 unique albums
+        if (albums.length >= 3) break;
+      }
+    }
+
+    res.json(albums);
   });
 });
 

@@ -9,10 +9,41 @@
   color: white;
 }
 
+.App-container h1 {
+  position: relative;
+  transition: opacity 0.2s ease, filter 0.2s ease;
+}
+
 .blur-text {
-  /* color: transparent; */
   filter: blur(4px);
-  /* text-shadow: 0 0 5px rgba(255, 255, 255, 0.5); */
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.clickable-tab {
+  cursor: pointer;
+  opacity: 0.6;
+  transition: opacity 0.2s ease;
+}
+
+.clickable-tab:hover {
+  opacity: 0.85;
+}
+
+.clickable-tab.active-tab {
+  opacity: 1;
+  position: relative;
+}
+
+.clickable-tab.active-tab::after {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background-color: #E4C8B3;
+  border-radius: 2px;
 }
 
 .columns {
@@ -49,5 +80,13 @@ a {
 
 .loading-text {
   color: white;
+}
+
+.no-ratings-text {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 1rem;
+  font-style: italic;
+  margin: 40px 20px;
+  text-align: center;
 }
 

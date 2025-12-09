@@ -133,17 +133,49 @@ router.get('/popular/trending', async (req, res) => {
     try {
         const limit = parseInt(req.query.limit) || 10;
         const daysAgo = parseInt(req.query.days) || 7;
-        
+
         const dateThreshold = new Date();
         dateThreshold.setDate(dateThreshold.getDate() - daysAgo);
-        
+
         const trendingRatings = await Rating.find({
             date: { $gte: dateThreshold }
         })
             .sort({ likes: -1, date: -1 })
             .limit(limit);
-        
+
         res.json(trendingRatings);
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+});
+
+// Get ratings from users that the current user follows
+router.get('/following/:userId', async (req, res) => {
+    try {
+        const User = require('../models/user');
+        const userId = req.params.userId;
+        const limit = parseInt(req.query.limit) || 10;
+
+        // Find the user and get their following list
+        const user = await User.findById(userId).select('following');
+
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // If user is not following anyone, return empty array
+        if (!user.following || user.following.length === 0) {
+            return res.json([]);
+        }
+
+        // Get ratings from all users in the following list
+        const followingRatings = await Rating.find({
+            user_id: { $in: user.following }
+        })
+            .sort({ date: -1 }) // Sort by most recent
+            .limit(limit);
+
+        res.json(followingRatings);
     } catch (err) {
         res.status(500).json({ message: err.message });
     }
