@@ -7,30 +7,63 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import Profile from './pages/Profile';
 
-const example_rating = '693618a841e627ee811604bb'
-const example_user_id = '6934c1425922a9cee32e9a28';
-
 
 function App() {
 
   const [ratings, setRatings] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [userId, setUser] = useState(null);
+
 
   useEffect(() => {
-  const fetchRatings = async () => {
-      try {
-          const ratingRes = await axios.get(`http://127.0.0.1:8000/ratings/`);
-          const all_ratings = ratingRes.data.map(rating => rating._id);
-          setRatings(all_ratings);
-      } catch (error) {
-          console.error("Error fetching ratings:", error);
-      } finally {
-          setLoading(false);
-      }
-  };
 
-  fetchRatings();
+    const ACCESS_TOKEN = localStorage.getItem("spotify_token");
+      const spotifyId = localStorage.getItem("spotify_user_id");
+      console.log(spotifyId);
+      // const search = window.location.search;
+      // const params = new URLSearchParams(search);
+      // const ACCESS_TOKEN = params.get('access_token');
+      // const ACCESS_TOKEN = process.env.REACT_APP_ACCESS_TOKEN;
+      console.log("Review Access token:", ACCESS_TOKEN);
+
+
+    if (!spotifyId) {
+      console.log("No spotifyId in localStorage");
+      return;
+    }
+
+    axios.get(`http://127.0.0.1:8000/user/spotify/${spotifyId}`)
+    .then((response) => {
+      const userId = response.data._id;
+      setUser(userId);
+      console.log("User id:", userId);
+    })
+    .catch((error) => {
+      console.error("Error fetching user:", error);
+    })
+    .finally(() => {
+      setLoading(false);
+    });
+
 }, []);
+
+
+  useEffect(() => {
+    const fetchRatings = async () => {
+      try {
+        const ratingRes = await axios.get(`http://127.0.0.1:8000/ratings/`);
+        const all_ratings = ratingRes.data.map(rating => rating._id);
+        setRatings(all_ratings);
+      } catch (error) {
+        console.error("Error fetching ratings:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+  
+    fetchRatings();
+  }, []);   // <-- correct place
+  
 
 if (loading) return (
   <div className="App">
@@ -69,7 +102,7 @@ if (loading) return (
           </div>
           <div className='ratings-container'>
           {ratings.map(rating_id => (
-            <Review key={rating_id} ratingId={rating_id} userId={example_user_id}/>
+            <Review key={rating_id} ratingId={rating_id} userId={userId}/>
           ))}
           </div>
         </div>
