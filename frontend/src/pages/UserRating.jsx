@@ -95,7 +95,7 @@ function UserRating() {
     return (
         <div className="user-ratings-page">
             <div className="ratings-header">
-                <img onClick={() => navigate('/user')}
+                <img onClick={() => navigate(`/user?access_token=${ACCESS_TOKEN}`)}
                     className="user"
                     src={user?.icon || "https://cdn-icons-png.flaticon.com/512/1144/1144760.png"}
                     alt="User"
