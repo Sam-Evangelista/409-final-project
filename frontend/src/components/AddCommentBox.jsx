@@ -24,10 +24,11 @@ function AddCommentBox({ onSubmit }) {
 
       {/* Modal */}
       {open && (
-        <div className="modal-overlay" onClick={() => setOpen(false)}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <button className="modal-close" onClick={() => setOpen(false)}>X</button>
-            <h4 className="new-comment-title">Add a Comment</h4>
+        <div className="add-modal-overlay" onClick={() => setOpen(false)}>
+          <div className="add-modal-content" onClick={(e) => e.stopPropagation()}>
+          <button className="add-modal-close" onClick={() => setOpen(false)}>x</button>
+                <h4 className="new-comment-title">Add a Comment</h4>
+            
 
             <textarea
               className="new-comment-text"

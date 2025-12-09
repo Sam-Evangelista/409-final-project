@@ -41,7 +41,7 @@ if (loading) return (
             <h1>Popular Ratings</h1>
           </div>
           <div className='ratings-container'>
-              <h1>Loading ratings...</h1>
+              <h1 className="loading-text">Loading ratings...</h1>
           </div>
         </div>
         <div className='column-2'>

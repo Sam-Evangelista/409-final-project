@@ -185,9 +185,9 @@ function Comments({ ratingId, commentIds = [], userInfo }) {
 
             {/* Add Comment Modal */}
             {addCommentModal && (
-                <div className="modal-overlay" onClick={() => setAddCommentModal(false)}>
-                    <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-                        <button className="modal-close" onClick={() => setAddCommentModal(false)}>X</button>
+                <div className="comments-modal-overlay" onClick={() => setAddCommentModal(false)}>
+                    <div className="comments-modal-content" onClick={(e) => e.stopPropagation()}>
+                        <button className="comments-modal-close" onClick={() => setAddCommentModal(false)}>X</button>
                         <h4 className='new-comment-title'>Add a New Comment</h4>
                         <textarea className='new-comment-text'
                             placeholder="Write your comment..."
@@ -202,9 +202,9 @@ function Comments({ ratingId, commentIds = [], userInfo }) {
 
             {/* Modal */}
             {modalOpen && activeComment && (
-                <div className="modal-overlay" onClick={closeModal}>
-                    <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-                        <button className="modal-close" onClick={closeModal}>X</button>
+                <div className="comments-modal-overlay" onClick={closeModal}>
+                    <div className="comments-modal-content" onClick={(e) => e.stopPropagation()}>
+                        <button className="comments-modal-close" onClick={closeModal}>X</button>
                         <div className="modal-comment">
                             <div className='modal-comment-header'>
                             <img src={activeComment.profilePic} alt={activeComment.username} className="comment-profile-pic" />
@@ -240,9 +240,9 @@ function Comments({ ratingId, commentIds = [], userInfo }) {
                             </div>
                         )}
 
-                        <div className="modal-navigation">
-                        <button onClick={goPrev} className="modal-nav-btn">←</button>
-                        <button onClick={goNext} className="modal-nav-btn">→</button>
+                        <div className="comments-modal-navigation">
+                        <button onClick={goPrev} className="comments-modal-nav-btn">←</button>
+                        <button onClick={goNext} className="comments-modal-nav-btn">→</button>
                         </div>
                     </div>
                 </div>
