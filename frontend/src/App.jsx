@@ -51,9 +51,9 @@ function App() {
   useEffect(() => {
     const fetchRatings = async () => {
       try {
-        const ratingRes = await axios.get(`http://127.0.0.1:8000/ratings/`);
-        const all_ratings = ratingRes.data.map(rating => rating._id);
-        setRatings(all_ratings);
+          const ratingRes = await axios.get(`http://127.0.0.1:8000/ratings/popular/ratings`);
+          const all_ratings = ratingRes.data.map(rating => rating._id);
+          setRatings(all_ratings);
       } catch (error) {
         console.error("Error fetching ratings:", error);
       } finally {

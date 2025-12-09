@@ -40,7 +40,7 @@ function RatingCreator() {
         .catch(err => {
             console.error("Error fetching /me:", err);
         });
-      });
+      }, [ACCESS_TOKEN]);
 
     // Fetch tracks when album is selected
     useEffect(() => {
