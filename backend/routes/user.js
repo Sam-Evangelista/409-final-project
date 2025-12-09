@@ -1,7 +1,9 @@
 const express = require('express');
 const router = express.Router();
+const request = require('request');
 
 const User = require("../models/user");
+const authToken = require('../models/authToken');
 
 // takes in body to create
 const createUser = async (req, res) => {
@@ -151,49 +153,56 @@ const unfollowUser = async (req, res) => {
   }
 };
 
-const getTopAlbumArtwork = async (req, res) => {
+router.get('/:spotifyId/top-albums-art', async (req, res) => {
   try {
-    const user = await User.findById(req.params.id);
+    // 1. Find the user by Spotify ID
+    const user = await User.findOne({ spotify_id: req.params.spotifyId });
     if (!user) return res.status(404).json({ error: 'User not found' });
 
-    const token = await authToken.findOne({ user_id: user._id });
-    if (!token) return res.status(401).json({ error: 'Missing auth token' });
+    // 2. Get their Spotify auth token from the authToken collection
+    const tokenDoc = await authToken.findOne({ user_id: user._id });
+    if (!tokenDoc) return res.status(401).json({ error: 'Missing auth token' });
 
-    const fetchAlbumArt = (albumName) => {
-      return new Promise((resolve) => {
+    const accessToken = tokenDoc.access_token;
+
+    // 3. Prefer `top_albums`, fallback to `most_listened_albums`, limit to first 4
+    const albumIds = (Array.isArray(user.top_albums) && user.top_albums.length
+      ? user.top_albums
+      : (Array.isArray(user.most_listened_albums) ? user.most_listened_albums : [])
+    ).slice(0, 4);
+
+    // 4. Fetch album details from Spotify using the access token
+    const fetchAlbum = (albumId) =>
+      new Promise((resolve) => {
         request.get(
           {
-            url: `https://api.spotify.com/v1/search?q=${encodeURIComponent(albumName)}&type=album&limit=1`,
-            headers: {
-              Authorization: `Bearer ${token.access_token}`
-            },
+            url: `https://api.spotify.com/v1/albums/${albumId}`,
+            headers: { Authorization: `Bearer ${accessToken}` },
             json: true
           },
           (err, response, body) => {
             if (err || response.statusCode !== 200) return resolve(null);
 
-            const album = body.albums.items[0];
-            if (!album) return resolve(null);
-
             resolve({
-              name: album.name,
-              image: album.images[0]?.url || null,
-              spotify_id: album.id
+              spotify_id: body.id,
+              name: body.name,
+              image: body.images?.[0]?.url || null,
+              artist: body.artists?.[0]?.name || null
             });
           }
         );
       });
-    };
 
-    const albums = await Promise.all(
-      user.top_albums.map(fetchAlbumArt)
-    );
+    // 5. Wait for all album fetches
+    const albums = await Promise.all(albumIds.map(fetchAlbum));
 
+    // 6. Return array of album artworks
     res.json(albums.filter(Boolean));
   } catch (err) {
+    console.error(err);
     res.status(500).json({ error: err.message });
   }
-};
+});
 
 router.post('/', createUser);
 router.get('/', getUsers);

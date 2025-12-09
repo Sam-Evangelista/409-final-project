@@ -5,6 +5,54 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import Followers from "../components/Followers";
 
+function MostListenedAlbums({ spotifyId }) {
+  const [albums, setAlbums] = useState([]);
+
+  useEffect(() => {
+    if (!spotifyId) return;
+
+        const fetchAlbums = async () => {
+            try {
+                const res = await fetch(`http://localhost:8000/user/${spotifyId}/top-albums-art`);
+                const data = await res.json();
+                // Normalize to expected shape: [{ spotify_id, name, image }]
+                const normalized = Array.isArray(data)
+                    ? data.map(a => ({
+                            spotify_id: a.spotify_id || a.id || a.spotifyId || null,
+                            name: a.name || a.album || "Unknown",
+                            image: a.image || a.images?.[0]?.url || a.album?.images?.[0]?.url || null
+                        }))
+                    : [];
+                setAlbums(normalized);
+            } catch (err) {
+                console.error("Error fetching top albums:", err);
+                setAlbums([]);
+            }
+        };
+
+    fetchAlbums();
+  }, [spotifyId]);
+
+    if (!albums.length) return <p>No top albums found.</p>;
+
+  return (
+    <div>
+      <h1>Most Listened to Albums</h1>
+      <div className="top-spacing">
+                {albums.map((album) => (
+                    <img
+                        key={album.spotify_id || album.name}
+                        className="top-album"
+                        src={album.image || "/default-album.png"}
+                        alt={album.name || "Unknown Album"}
+                    />
+                ))}
+      </div>
+      <div className="rectangle"></div>
+    </div>
+  );
+}
+
 function Profile () {
     const [user, setUser] = useState(null);
     const [dbUser, setDbUser] = useState(null);          
@@ -168,14 +216,7 @@ function Profile () {
                     <div className="rectangle"></div>
                     <img/>
 
-                    <h1>Most Listened to Albums</h1>
-                    <div className="top-spacing">
-                        <img className="top-album" src="https://upload.wikimedia.org/wikipedia/en/9/9b/Tame_Impala_-_Currents.png"/>
-                        <img className="top-album" src="https://upload.wikimedia.org/wikipedia/en/9/9b/Tame_Impala_-_Currents.png"/>
-                        <img className="top-album" src="https://upload.wikimedia.org/wikipedia/en/9/9b/Tame_Impala_-_Currents.png"/>
-                        <img className="top-album" src="https://upload.wikimedia.org/wikipedia/en/9/9b/Tame_Impala_-_Currents.png"/>
-                    </div>
-                    <div className="rectangle"></div>
+                    <MostListenedAlbums spotifyId={user?.id || user?.spotify_id || localStorage.getItem("spotify_user_id")} />
                 </div>
 
                 <div className="top-artist-container">
