@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import '../assets/Comments.css';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import AddCommentBox from "./AddCommentBox";
+import axios from "axios";
 
 function Comments({ ratingId, commentIds = [], userInfo }) {
     const [comments, setComments] = useState([]);
@@ -18,66 +19,87 @@ function Comments({ ratingId, commentIds = [], userInfo }) {
     useEffect(() => {
         setLoading(true);
 
-        const placeholderComments = commentIds.map((id, index) => ({
-            _id: id,
-            user_id: `user-${index}`,
-            username: `user${index + 1}`,
-            profilePic: `https://media.licdn.com/dms/image/v2/D5603AQEQwus3EcW9mA/profile-displayphoto-scale_400_400/B56Zh4BQQ_G0Ak-/0/1754360252022`,
-            comment_body: `This is placeholder comment ${index + 1}.`,
-            likes: Math.floor(Math.random() * 20),
-            date: new Date(Date.now() - index * 86400000),
-            child_comments: [
-                {
-                    _id: `${id}-1`,
-                    username: `child1`,
-                    profilePic: `https://i.pravatar.cc/50?img=${index + 1}`,
-                    comment_body: `Child comment 1 of ${id}`,
-                    likes: 3,
-                    date: new Date()
-                },
-                {
-                    _id: `${id}-2`,
-                    username: `child2`,
-                    profilePic: `https://i.pravatar.cc/50?img=${index + 1}`,
-                    comment_body: `Child comment 2 of ${id}`,
-                    likes: 1,
-                    date: new Date()
-                },
-            ],
-        }));
-
-        setComments(placeholderComments);
-        setLoading(false);
+        const fetchData = async () => {
+            try {
+    
+            const commentRes = await axios.get(`http://127.0.0.1:8000/comments/rating/${ratingId}`);
+            const commentData = commentRes.data;
+            setComments(commentData);
+            } catch (error) {
+              console.error('Error fetching comments:', error);
+            } finally {
+                setLoading(false);
+            }
+          };
+      
+        fetchData();
     }, [commentIds, ratingId]);
 
-    const handleLike = (id, isChild = false) => {
-        setComments(prev =>
-            prev.map(comment => {
-                if (!isChild) {
-                    if (comment._id === id && !comment.isLiked) {
-                        return { ...comment, isLiked: true, likes: comment.likes + 1 };
-                    }
-                    return comment;
-                }
 
-                const updatedChildren = comment.child_comments.map(child => {
-                    if (child._id === id && !child.isLiked) {
-                        return { ...child, isLiked: true, likes: child.likes + 1 };
-                    }
-                    return child;
-                });
 
-                return { ...comment, child_comments: updatedChildren };
-            })
-        );
+    const handleLike = async (id, isChild = false) => {
+        try {
+            // Call backend to increment likes
+            const response = await axios.patch(`http://127.0.0.1:8000/comments/${id}/like`);
+            const updatedLikes = response.data.likes;
+    
+            // Update state locally
+            setComments(prev =>
+                prev.map(comment => {
+                    if (!isChild) {
+                        if (comment._id === id) {
+                            return { ...comment, isLiked: true, likes: updatedLikes };
+                        }
+                        return comment;
+                    }
+    
+                    const updatedChildren = comment.child_comments.map(child => {
+                        if (child._id === id) {
+                            return { ...child, isLiked: true, likes: updatedLikes };
+                        }
+                        return child;
+                    });
+    
+                    return { ...comment, child_comments: updatedChildren };
+                })
+            );
+        } catch (err) {
+            console.error("Error liking comment:", err);
+        }
     };
 
-    const openModal = (index) => {
+    const openModal = async (index) => {
         setActiveIndex(index);
         setShowReplyBox(false);
         setReplyText('');
         setModalOpen(true);
+    
+        const parentId = comments[index]._id;
+    
+        try {
+            const response = await axios.get(`http://127.0.0.1:8000/comments/${parentId}/replies`);
+            const replies = response.data;
+    
+            // Inject replies into that comment
+            setComments(prev =>
+                prev.map((c, i) => {
+                    if (i === index) {
+                        return { 
+                            ...c, 
+                            child_comments: replies.map(r => ({
+                                ...r,
+                                isLiked: false // frontend-only state
+                            }))
+                        };
+                    }
+                    return c;
+                })
+            );
+        } catch (error) {
+            console.error("Error fetching replies:", error);
+        }
     };
+    
 
     const closeModal = () => setModalOpen(false);
 
@@ -87,52 +109,65 @@ function Comments({ ratingId, commentIds = [], userInfo }) {
     const goPrev = () =>
         setActiveIndex(prev => (prev - 1 + comments.length) % comments.length);
 
-    const handleAddComment = () => {
-        if (!newCommentText.trim()) return;
-
-        const newComment = {
-            _id: `new-${Date.now()}`,
-            username: userInfo.username,
-            comment_body: newCommentText,
-            likes: 0,
-            isLiked: false,
-            date: new Date(),
-            child_comments: []
-        };
-
-        setComments(prev => [...prev, newComment]);
-        setNewCommentText('');
-        setAddCommentModal(false);
+    const handleAddComment = async (text) => {
+        if (!text.trim()) return;
+    
+        try {
+            const response = await axios.post('http://127.0.0.1:8000/comments/', {
+                user_id: userInfo._id,
+                rating_id: ratingId,
+                comment_body: text
+            });
+    
+            const savedComment = response.data;
+    
+            setComments(prev => [...prev, {
+                ...savedComment,
+                isLiked: false,
+                child_comments: savedComment.child_comments || []
+            }]);
+        } catch (err) {
+            console.error("Error adding comment:", err);
+        }
     };
+    
 
-    const handleAddReply = () => {
-        if (!replyText.trim()) return;
-
-        const newReply = {
-            _id: `reply-${Date.now()}`,
-            username: userInfo.username,
-            profilePic: userInfo.icon || "https://cdn-icons-png.flaticon.com/512/1144/1144760.png",
-            comment_body: replyText,
-            likes: 0,
-            isLiked: false,
-            date: new Date()
-        };
-
-        setComments(prev =>
-            prev.map((c, i) => {
-                if (i === activeIndex) {
-                    return {
-                        ...c,
-                        child_comments: [...c.child_comments, newReply]
-                    };
-                }
-                return c;
-            })
-        );
-
-        setReplyText('');
-        setShowReplyBox(false);
+    const handleAddReply = async (text) => {
+        if (typeof text !== "string" || !text.trim()) return;
+    
+        const parentComment = comments[activeIndex];
+    
+        try {
+            const response = await axios.post(`http://127.0.0.1:8000/comments/${parentComment._id}/reply`, {
+                user_id: userInfo._id,
+                comment_body: text
+            });
+    
+            const populatedReply = response.data;
+    
+            // Insert the reply directly – it already includes username + icon
+            setComments(prev =>
+                prev.map((c, i) => {
+                    if (i === activeIndex) {
+                        return {
+                            ...c,
+                            child_comments: [...c.child_comments, populatedReply]
+                        };
+                    }
+                    return c;
+                })
+            );
+    
+            setReplyText("");
+            setShowReplyBox(false);
+    
+        } catch (err) {
+            console.error("Error adding reply:", err);
+        }
     };
+    
+    
+
 
     if (loading) return <div>Loading comments…</div>;
 
@@ -142,19 +177,7 @@ function Comments({ ratingId, commentIds = [], userInfo }) {
                 <h3>Comments</h3>
                 <p>No comments yet. Be the first to comment!</p>
 
-                <AddCommentBox
-                    onSubmit={(text) => {
-                        const savedComment = {
-                            username: userInfo.username,
-                            profilePic: userInfo.icon,
-                            comment_body: text,
-                            likes: 0,
-                            date: new Date(),
-                            child_comments: []
-                        };
-                        setComments(prev => [...prev, savedComment]);
-                    }}
-                />
+                <AddCommentBox onSubmit={(text) => handleAddComment(text)} />
             </div>
         );
     }
@@ -169,8 +192,8 @@ function Comments({ ratingId, commentIds = [], userInfo }) {
                 {comments.map((comment, index) => (
                     <div key={comment._id} className="comment-item" onClick={() => openModal(index)}>
                         <div className="comment-header">
-                            <img className="comment-profile-pic" src={comment.profilePic} alt="" />
-                            <span>{comment.username}</span>
+                            <img className="comment-profile-pic" src={comment.icon || comment.user_id?.icon} alt="" />
+                            <span>{comment.username || comment.user_id?.username}</span>
                         </div>
 
                         <div className="comment-body">{comment.comment_body}</div>
@@ -192,19 +215,7 @@ function Comments({ ratingId, commentIds = [], userInfo }) {
                     </div>
                 ))}
 
-                <AddCommentBox
-                    onSubmit={(text) => {
-                        const savedComment = {
-                            username: userInfo.username,
-                            profilePic: userInfo.icon,
-                            comment_body: text,
-                            likes: 0,
-                            date: new Date(),
-                            child_comments: []
-                        };
-                        setComments(prev => [...prev, savedComment]);
-                    }}
-                />
+                <AddCommentBox onSubmit={(text) => handleAddComment(text)} />
             </div>
 
             {/* ---------------- MODAL ---------------- */}
@@ -214,8 +225,8 @@ function Comments({ ratingId, commentIds = [], userInfo }) {
                         <button className="comments-modal-close" onClick={closeModal}>X</button>
 
                         <div className="modal-comment-header">
-                            <img className="comment-profile-pic" src={activeComment.profilePic} alt="" />
-                            <h4>{activeComment.username}</h4>
+                            <img className="comment-profile-pic" src={activeComment.icon || activeComment.user_id?.icon} alt="" />
+                            <h4>{activeComment.username || activeComment.user_id?.username}</h4>
                         </div>
 
                         <div className="modal-comment-text-container">
@@ -252,7 +263,10 @@ function Comments({ ratingId, commentIds = [], userInfo }) {
                                     onChange={(e) => setReplyText(e.target.value)}
                                     rows={3}
                                 />
-                                <button className="submit-reply-btn" onClick={handleAddReply}>
+                                <button 
+                                    className="submit-reply-btn"
+                                    onClick={() => handleAddReply(replyText)}
+                                >
                                     Post Reply
                                 </button>
                             </div>
@@ -265,8 +279,8 @@ function Comments({ ratingId, commentIds = [], userInfo }) {
 
                                 {activeComment.child_comments.map(child => (
                                     <div key={child._id} className="modal-child-comment">
-                                        <img className="comment-profile-pic-small" src={child.profilePic} alt="" />
-                                        <p><strong>{child.username}</strong>: {child.comment_body}</p>
+                                        <img className="comment-profile-pic-small" src={child.icon || child.user_id?.icon} alt="" />
+                                        <p><strong>{child.username || child.user_id?.username}</strong>: {child.comment_body}</p>
 
                                         <button
                                             className={`like-btn ${child.isLiked ? 'liked' : ''}`}
