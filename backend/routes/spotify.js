@@ -10,7 +10,7 @@ const client_id = process.env.SPOTIFY_CLIENT_ID;
 const client_secret = process.env.SPOTIFY_CLIENT_SECRET;
 
 // const redirect_uri = 'http://127.0.0.1:8000/spotify/callback';
-const redirect_uri = 'https://recordbackend.vercel.app/spotify/callback';
+const redirect_uri = 'https://recordb.vercel.app/spotify/callback';
 
 function generateRandomString(length) {
   let text = '';
@@ -171,7 +171,7 @@ router.get('/callback', async (req, res) => {
         await atoken.save();
     }
     // const frontendRedirect = `http://127.0.0.1:3000/user?access_token=${access_token}`;
-    const frontendRedirect = `http://recordbackend.vercel.app/user?access_token=${access_token}`;
+    const frontendRedirect = `https://recordb.vercel.app/user?access_token=${access_token}`;
     res.redirect(frontendRedirect);
   } catch (error) {
     console.error('OAuth callback error:', error);
