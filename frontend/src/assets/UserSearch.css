@@ -122,3 +122,87 @@
 .user-search-follow-btn.following:hover {
   background-color: rgba(255, 255, 255, 0.25);
 }
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .user-search-container {
+    max-width: 280px;
+  }
+
+  .user-search-dropdown {
+    max-height: 350px;
+  }
+}
+
+@media (max-width: 768px) {
+  .user-search-container {
+    max-width: 100%;
+  }
+
+  .user-search-input {
+    padding: 9px 14px;
+    font-size: 0.9rem;
+  }
+
+  .user-search-dropdown {
+    max-height: 300px;
+  }
+
+  .user-search-item {
+    padding: 10px 12px;
+    gap: 10px;
+  }
+
+  .user-search-image {
+    width: 35px;
+    height: 35px;
+  }
+
+  .user-search-name {
+    font-size: 0.9rem;
+  }
+
+  .user-search-bio {
+    font-size: 0.75rem;
+  }
+
+  .user-search-follow-btn {
+    padding: 5px 14px;
+    font-size: 0.8rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .user-search-input {
+    padding: 8px 12px;
+    font-size: 0.85rem;
+  }
+
+  .user-search-dropdown {
+    max-height: 250px;
+    border-radius: 10px;
+  }
+
+  .user-search-item {
+    padding: 8px 10px;
+    gap: 8px;
+  }
+
+  .user-search-image {
+    width: 32px;
+    height: 32px;
+  }
+
+  .user-search-name {
+    font-size: 0.85rem;
+  }
+
+  .user-search-bio {
+    font-size: 0.7rem;
+  }
+
+  .user-search-follow-btn {
+    padding: 4px 12px;
+    font-size: 0.75rem;
+  }
+}

@@ -175,3 +175,117 @@
     display:flex;
     flex-direction: row;
 }
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+    .review {
+        margin-left: 2vw;
+        padding: 18px;
+    }
+
+    .album-img {
+        width: 18vw;
+    }
+
+    .vinyl-img {
+        width: 14vw;
+        left: -7vw;
+    }
+
+    .rater-img {
+        width: 9vw;
+    }
+
+    .heart {
+        width: 1.6vw;
+    }
+}
+
+@media (max-width: 768px) {
+    .review {
+        margin-left: 0;
+        width: calc(100% - 6vw);
+        margin: 0 3vw;
+    }
+
+    .review-box {
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .left-side,
+    .right-side {
+        width: 100%;
+    }
+
+    .review-content-section {
+        margin-left: 0;
+    }
+
+    .album-img {
+        width: 30vw;
+        max-width: 200px;
+    }
+
+    .vinyl-img {
+        width: 24vw;
+        max-width: 160px;
+        left: -12vw;
+    }
+
+    .rater-img {
+        width: 60px;
+    }
+
+    .heart {
+        width: 20px;
+    }
+
+    .review-tracklist-section {
+        width: 100%;
+        align-self: flex-start;
+    }
+}
+
+@media (max-width: 480px) {
+    .review {
+        padding: 15px;
+        margin: 0 2vw;
+        width: calc(100% - 4vw);
+    }
+
+    .review-box {
+        padding: 0.5rem;
+    }
+
+    .album-box {
+        flex-direction: column;
+        gap: 0;
+    }
+
+    .album-img {
+        width: 50vw;
+        max-width: 180px;
+    }
+
+    .vinyl-img {
+        display: none;
+    }
+
+    .rater-img {
+        width: 50px;
+    }
+
+    .heart {
+        width: 18px;
+    }
+
+    .review-text-label {
+        font-size: 1rem;
+    }
+
+    .review-text {
+        font-size: 0.85rem;
+        padding: 0.6rem;
+    }
+}

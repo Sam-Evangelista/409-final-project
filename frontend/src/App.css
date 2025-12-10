@@ -91,3 +91,64 @@ a {
   text-align: center;
 }
 
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .App-container {
+    margin-left: 2vw;
+    gap: 1.5vw;
+  }
+
+  .columns {
+    gap: 2vw;
+  }
+
+  .rating-alignment {
+    bottom: 2vw;
+    right: 2vw;
+  }
+}
+
+@media (max-width: 768px) {
+  .App-container {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+    margin-left: 4vw;
+  }
+
+  .App-container h1 {
+    font-size: 1.5rem;
+  }
+
+  .columns {
+    flex-direction: column;
+    gap: 2rem;
+  }
+
+  .column-1,
+  .column-2 {
+    flex: 1;
+  }
+
+  .rating-alignment {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .App-container {
+    margin-left: 5vw;
+  }
+
+  .App-container h1 {
+    font-size: 1.2rem;
+  }
+
+  .clickable-tab.active-tab::after {
+    bottom: -5px;
+    height: 2px;
+  }
+}
+

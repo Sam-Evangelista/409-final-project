@@ -70,3 +70,72 @@
     margin: 20px 0;
     text-align: center;
 }
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+    .recent-img {
+        width: 12vw;
+        min-width: 110px;
+    }
+
+    .recent-album-info {
+        max-width: 12vw;
+        min-width: 110px;
+    }
+}
+
+@media (max-width: 768px) {
+    .img-box {
+        gap: 15px;
+    }
+
+    .recent-img {
+        width: 18vw;
+        min-width: 100px;
+    }
+
+    .recent-album-info {
+        max-width: 18vw;
+        min-width: 100px;
+    }
+
+    .recent-album-name {
+        font-size: 0.85rem;
+    }
+
+    .recent-album-artist {
+        font-size: 0.75rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .img-box {
+        gap: 12px;
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .recent-album-item {
+        width: 40%;
+        min-width: 100px;
+    }
+
+    .recent-img {
+        width: 100%;
+        min-width: 90px;
+    }
+
+    .recent-album-info {
+        max-width: 100%;
+        min-width: 90px;
+    }
+
+    .recent-album-name {
+        font-size: 0.8rem;
+    }
+
+    .recent-album-artist {
+        font-size: 0.7rem;
+    }
+}
