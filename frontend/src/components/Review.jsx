@@ -7,8 +7,7 @@ import '@smastrom/react-rating/style.css';
 import axios from "axios";
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import { useUser } from '../context/UserContext';
-import { getAlbum, getTracksBatch } from '../utils/spotifyCache';
-import { getFromCache, setInCache, CACHE_KEYS, TTL } from '../utils/cache';
+import { getFromCache, CACHE_KEYS } from '../utils/cache';
 import { useNavigate } from 'react-router-dom';
 
 
@@ -68,21 +67,17 @@ function Review({ ratingId, userId }) {
             }
           }
 
-          // Fetch album info using cached function (permanently cached)
           if (ratingRes.data.album_id) {
-            const albumData = await getAlbum(ratingRes.data.album_id, ACCESS_TOKEN);
+            const albumData = {
+              image: ratingRes.data.album_cover,
+              artist: ratingRes.data.artist,
+              name: ratingRes.data.album
+            }
             setAlbumInfo(albumData);
           }
 
-          // Fetch tracks using cached batch function
           if (ratingRes.data.tracklist_rating?.length > 0) {
-            const tracksData = await getTracksBatch(ratingRes.data.tracklist_rating, ACCESS_TOKEN);
-            const trackData = tracksData.map(t => ({
-              id: t.id,
-              name: t.name,
-              duration_ms: t.duration_ms
-            }));
-            setTracks(trackData);
+            setTracks(ratingRes.data.tracklist_rating)
           }
         } catch (err) {
           console.error('Error fetching rating data:', err);
@@ -149,8 +144,8 @@ function Review({ ratingId, userId }) {
             <div className='left-side'>
               <div className='info'>
                 <div className='album-box'>
-                    {albumInfo?.images?.[0]?.url && (
-                      <img className='album-img' src={albumInfo.images[0].url} alt="Album cover" />
+                    {albumInfo?.image && (
+                      <img className='album-img' src={albumInfo?.image} alt="Album cover" />
                     )}
                     <img className='vinyl-img' src='https://pngimg.com/d/vinyl_PNG18.png' alt='vinyl' />
                 </div>
@@ -159,7 +154,7 @@ function Review({ ratingId, userId }) {
                   <div className='review-details'>
                     <div className="title-box">
                         <h1>{albumInfo?.name || rating.album}</h1>
-                        <h2>{albumInfo?.artists?.map((a) => a.name).join(", ") || 'Unknown Artist'}</h2>
+                        <h2>{albumInfo?.artist || 'Unknown Artist'}</h2>
                     </div>
                       <div className="stars-display">
                           <StarRating

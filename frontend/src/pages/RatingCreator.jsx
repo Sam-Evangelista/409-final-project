@@ -110,7 +110,7 @@ function RatingCreator() {
     const handleSubmit = async () => {
         if (!user || !selectedAlbum || !mongoId) return;
 
-        const trackIds = tracks.map(track => track.id);
+        const trackNames = tracks.map(track => track.name);
 
         try {
             const response = await axios.post('http://127.0.0.1:8000/ratings/', {
@@ -122,7 +122,7 @@ function RatingCreator() {
                 artist: artistNames,
                 stars: rating,
                 review: review,
-                tracklist_rating: trackIds,
+                tracklist_rating: trackNames,
             });
 
             console.log(response.data);
