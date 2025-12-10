@@ -3,6 +3,7 @@ import '../assets/Comments.css';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import AddCommentBox from "./AddCommentBox";
 import axios from "axios";
+import { useNavigate } from 'react-router-dom';
 
 function Comments({ ratingId, commentIds = [], userInfo }) {
     const [comments, setComments] = useState([]);
@@ -14,6 +15,8 @@ function Comments({ ratingId, commentIds = [], userInfo }) {
 
     const [replyText, setReplyText] = useState('');
     const [showReplyBox, setShowReplyBox] = useState(false);
+
+    const navigate = useNavigate();
 
     // Fetch placeholder comments
     useEffect(() => {
@@ -192,8 +195,25 @@ function Comments({ ratingId, commentIds = [], userInfo }) {
                 {comments.map((comment, index) => (
                     <div key={comment._id} className="comment-item" onClick={() => openModal(index)}>
                         <div className="comment-header">
-                            <img className="comment-profile-pic" src={comment.icon || comment.user_id?.icon} alt="" />
-                            <span>{comment.username || comment.user_id?.username}</span>
+                            <img
+                                className="comment-profile-pic"
+                                src={comment.icon || comment.user_id?.icon}
+                                alt=""
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    navigate(`/user/${comment.username || comment.user_id?.username}`);
+                                }}
+                                style={{ cursor: 'pointer' }}
+                            />
+                            <span
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    navigate(`/user/${comment.username || comment.user_id?.username}`);
+                                }}
+                                style={{ cursor: 'pointer' }}
+                            >
+                                {comment.username || comment.user_id?.username}
+                            </span>
                         </div>
 
                         <div className="comment-body">{comment.comment_body}</div>
@@ -225,8 +245,25 @@ function Comments({ ratingId, commentIds = [], userInfo }) {
                         <button className="comments-modal-close" onClick={closeModal}>X</button>
 
                         <div className="modal-comment-header">
-                            <img className="comment-profile-pic" src={activeComment.icon || activeComment.user_id?.icon} alt="" />
-                            <h4>{activeComment.username || activeComment.user_id?.username}</h4>
+                            <img
+                                className="comment-profile-pic"
+                                src={activeComment.icon || activeComment.user_id?.icon}
+                                alt=""
+                                onClick={() => {
+                                    closeModal();
+                                    navigate(`/user/${activeComment.username || activeComment.user_id?.username}`);
+                                }}
+                                style={{ cursor: 'pointer' }}
+                            />
+                            <h4
+                                onClick={() => {
+                                    closeModal();
+                                    navigate(`/user/${activeComment.username || activeComment.user_id?.username}`);
+                                }}
+                                style={{ cursor: 'pointer' }}
+                            >
+                                {activeComment.username || activeComment.user_id?.username}
+                            </h4>
                         </div>
 
                         <div className="modal-comment-text-container">
@@ -279,8 +316,27 @@ function Comments({ ratingId, commentIds = [], userInfo }) {
 
                                 {activeComment.child_comments.map(child => (
                                     <div key={child._id} className="modal-child-comment">
-                                        <img className="comment-profile-pic-small" src={child.icon || child.user_id?.icon} alt="" />
-                                        <p><strong>{child.username || child.user_id?.username}</strong>: {child.comment_body}</p>
+                                        <img
+                                            className="comment-profile-pic-small"
+                                            src={child.icon || child.user_id?.icon}
+                                            alt=""
+                                            onClick={() => {
+                                                closeModal();
+                                                navigate(`/user/${child.username || child.user_id?.username}`);
+                                            }}
+                                            style={{ cursor: 'pointer' }}
+                                        />
+                                        <p>
+                                            <strong
+                                                onClick={() => {
+                                                    closeModal();
+                                                    navigate(`/user/${child.username || child.user_id?.username}`);
+                                                }}
+                                                style={{ cursor: 'pointer' }}
+                                            >
+                                                {child.username || child.user_id?.username}
+                                            </strong>: {child.comment_body}
+                                        </p>
 
                                         <button
                                             className={`like-btn ${child.isLiked ? 'liked' : ''}`}

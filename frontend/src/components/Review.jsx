@@ -9,6 +9,7 @@ import '@fortawesome/fontawesome-free/css/all.min.css';
 import { useUser } from '../context/UserContext';
 import { getAlbum, getTracksBatch } from '../utils/spotifyCache';
 import { getFromCache, setInCache, CACHE_KEYS, TTL } from '../utils/cache';
+import { useNavigate } from 'react-router-dom';
 
 
 
@@ -25,6 +26,7 @@ function Review({ ratingId, userId }) {
     // Get token from context
     const { getToken, fetchDbUserById } = useUser();
     const ACCESS_TOKEN = getToken();
+    const navigate = useNavigate();
 
     useEffect(() => {
       if (!ACCESS_TOKEN) return;
@@ -166,9 +168,20 @@ function Review({ ratingId, userId }) {
             <div className='right-side'>
 
                 <div className="rater-info">
-                        <img className='rater-img' src={ratingUserInfo?.icon || 'https://cdn-icons-png.flaticon.com/512/1144/1144760.png'} alt={ratingUserInfo?.display_name || 'User'} />
+                        <img
+                            className='rater-img'
+                            src={ratingUserInfo?.icon || 'https://cdn-icons-png.flaticon.com/512/1144/1144760.png'}
+                            alt={ratingUserInfo?.username || 'User'}
+                            onClick={() => navigate(`/user/${rating.username}`)}
+                            style={{ cursor: 'pointer' }}
+                        />
                         <div>
-                            <i>{rating.username}'s review</i>
+                            <i
+                                onClick={() => navigate(`/user/${rating.username}`)}
+                                style={{ cursor: 'pointer' }}
+                            >
+                                {rating.username}'s review
+                            </i>
                             <p className="review-date">{new Date(rating.date).toLocaleDateString()}</p>
                         </div>
                 </div>

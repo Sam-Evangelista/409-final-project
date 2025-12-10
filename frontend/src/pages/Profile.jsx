@@ -2,7 +2,7 @@ import Header from "../components/Header";
 import Followers from "../components/Followers";
 import AlbumSearch from "../components/AlbumSearch";
 import '../assets/Profile.css';
-import { Link, useNavigate } from "react-router";
+import { Link, useNavigate, useParams } from "react-router";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { useUser } from "../context/UserContext";
@@ -84,6 +84,8 @@ function MostListenedAlbums({ spotifyId, fakeAlbums }) {
 }
 
 function Profile () {
+    const { username } = useParams(); // Get username from URL
+
     // Get user data from context (cached)
     const {
         spotifyUser: user,
@@ -108,6 +110,7 @@ function Profile () {
     const [loadingRatings, setLoadingRatings] = useState(true);
     const [currentlyPlaying, setCurrentlyPlaying] = useState(null);
     const [localProgress, setLocalProgress] = useState(0);
+    const [viewingOtherUser, setViewingOtherUser] = useState(false);
 
     const navigate = useNavigate();
 
@@ -122,12 +125,32 @@ function Profile () {
         localStorage.setItem("spotify_token", urlToken);
     }
 
-    // Sync localDbUser with context dbUser
+    // Sync localDbUser with context dbUser or fetch other user
     useEffect(() => {
-        if (dbUser) {
-            setLocalDbUser(dbUser);
-        }
-    }, [dbUser]);
+        const fetchUserData = async () => {
+            if (username) {
+                // Viewing another user's profile
+                setViewingOtherUser(true);
+                try {
+                    const usersRes = await axios.get(`http://127.0.0.1:8000/user/`);
+                    const targetUser = usersRes.data.find(u => u.username === username);
+                    if (targetUser) {
+                        setLocalDbUser(targetUser);
+                    }
+                } catch (err) {
+                    console.error("Error fetching user:", err);
+                }
+            } else {
+                // Viewing own profile
+                setViewingOtherUser(false);
+                if (dbUser) {
+                    setLocalDbUser(dbUser);
+                }
+            }
+        };
+
+        fetchUserData();
+    }, [dbUser, username]);
 
     const handleLoadFollowList = async (type) => {
         if (USE_FAKE_DATA) {
@@ -164,7 +187,7 @@ function Profile () {
 
     const handleUserClick = (clickedUser) => {
         setActiveList(null);
-        window.open(`https://open.spotify.com/user/${clickedUser.spotify_id}`, '_blank');
+        navigate(`/user/${clickedUser.username}`);
     };
 
     const handleEditBio = () => {
@@ -245,6 +268,21 @@ function Profile () {
 
     // Fetch top artists and tracks with caching
     useEffect(() => {
+        if (viewingOtherUser) {
+            // Load from database for other users
+            if (localDbUser?.top_artists && Array.isArray(localDbUser.top_artists)) {
+                setTopArtists(localDbUser.top_artists);
+            } else {
+                setTopArtists([]);
+            }
+            if (localDbUser?.top_songs && Array.isArray(localDbUser.top_songs)) {
+                setTopTracks(localDbUser.top_songs);
+            } else {
+                setTopTracks([]);
+            }
+            return;
+        }
+
         if (USE_FAKE_DATA) {
             setTopArtists(fakeTopArtists);
             setTopTracks(fakeTopTracks);
@@ -262,10 +300,22 @@ function Profile () {
             ]);
             setTopArtists(artists);
             setTopTracks(tracks);
+
+            // Save to database for logged-in user
+            if (localDbUser?._id) {
+                try {
+                    await updateDbUser(localDbUser._id, {
+                        top_artists: artists,
+                        top_songs: tracks
+                    });
+                } catch (err) {
+                    console.error("Error saving top artists/songs:", err);
+                }
+            }
         };
 
         fetchData();
-    }, [accessToken, user?.id]);
+    }, [accessToken, user?.id, viewingOtherUser, localDbUser]);
 
     // Set top albums data when localDbUser changes
     useEffect(() => {
@@ -346,9 +396,13 @@ function Profile () {
         fetchUserRatings();
     }, [localDbUser?.username, accessToken]);
 
-    // Fetch currently playing track
+    // Fetch currently playing track (only for own profile)
     useEffect(() => {
-        if (!accessToken) return;
+        if (!accessToken || viewingOtherUser) {
+            setCurrentlyPlaying(null);
+            setLocalProgress(0);
+            return;
+        }
 
         const fetchCurrentlyPlaying = async () => {
             try {
@@ -377,7 +431,7 @@ function Profile () {
         const syncInterval = setInterval(fetchCurrentlyPlaying, 5000);
 
         return () => clearInterval(syncInterval);
-    }, [accessToken]);
+    }, [accessToken, viewingOtherUser]);
 
     // Local timer that increments progress every second
     useEffect(() => {
@@ -423,11 +477,11 @@ function Profile () {
             <div className="profile-top">
                 <div className="profile-box">
                     <div>
-                        <img className="profile-img" src={user?.images?.[0]?.url || "https://cdn-icons-png.flaticon.com/512/1144/1144760.png"}/>
+                        <img className="profile-img" src={localDbUser?.icon || "https://cdn-icons-png.flaticon.com/512/1144/1144760.png"}/>
                     </div>
 
                     <div>
-                        <h1>{user?.display_name || "Loading..."}</h1>
+                        <h1>{localDbUser?.username || "Loading..."}</h1>
                         <h2>
                             <span className="clickable-text" onClick={() => handleLoadFollowList('followers')}>
                                 {localDbUser?.followers?.length || 0} Followers
@@ -453,12 +507,12 @@ function Profile () {
                                 </div>
                             </div>
                         ) : (
-                            <h2 className="clickable-text" onClick={handleEditBio}>
-                                {localDbUser?.bio || "Add a bio..."}
+                            <h2 className={viewingOtherUser ? "" : "clickable-text"} onClick={viewingOtherUser ? undefined : handleEditBio}>
+                                {localDbUser?.bio || (viewingOtherUser ? "No bio" : "Add a bio...")}
                             </h2>
                         )}
 
-                        {currentlyPlaying && (
+                        {!viewingOtherUser && currentlyPlaying && (
                             <div className="currently-playing">
                                 <img
                                     src={currentlyPlaying.albumArt}
@@ -479,10 +533,10 @@ function Profile () {
 
                 <div>
                     <div className="ratings-box">
-                        <Link to='/user/ratings'>
-                            <h1>{user?.display_name || "Loading..."}'s Ratings</h1>
+                        <Link to={viewingOtherUser ? `/user/${localDbUser?.username}/ratings` : '/user/ratings'}>
+                            <h1>{localDbUser?.username || "Loading..."}'s Ratings</h1>
                         </Link>
-                        <Link to='/user/ratings'>
+                        <Link to={viewingOtherUser ? `/user/${localDbUser?.username}/ratings` : '/user/ratings'}>
                             <img className="ratings-icon" src="https://icons.veryicon.com/png/o/miscellaneous/rookie-30-official-icon-library/button-arrow-right-1.png"/>
                         </Link>
                     </div>
@@ -520,7 +574,9 @@ function Profile () {
                     <div>
                         <div className="section-header">
                             <h1>Top Albums</h1>
-                            <button className="edit-albums-btn" onClick={handleEditTopAlbums}>Edit</button>
+                            {!viewingOtherUser && (
+                                <button className="edit-albums-btn" onClick={handleEditTopAlbums}>Edit</button>
+                            )}
                         </div>
                         <div className="top-spacing">
                             {topAlbumsData.length > 0 ? (
@@ -533,13 +589,19 @@ function Profile () {
                                     />
                                 ))
                             ) : (
-                                <p className="no-albums-text">Click Edit to add your top albums</p>
+                                <p className="no-albums-text">
+                                    {viewingOtherUser ? "No top albums" : "Click Edit to add your top albums"}
+                                </p>
                             )}
                         </div>
                         <div className="rectangle"></div>
                     </div>
 
-                    {user?.id && <MostListenedAlbums spotifyId={user.id} />}
+                    {viewingOtherUser ? (
+                        localDbUser?.spotify_id && <MostListenedAlbums spotifyId={localDbUser.spotify_id} />
+                    ) : (
+                        user?.id && <MostListenedAlbums spotifyId={user.id} />
+                    )}
                 </div>
 
                 <div className="artists-songs-section">

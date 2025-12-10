@@ -3,6 +3,7 @@ import Header from './components/Header';
 import MakeRating from './components/MakeRating';
 import Recently from './components/Recently';
 import Review from './components/Review';
+import UserSearch from './components/UserSearch';
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { useUser } from './context/UserContext';
@@ -92,6 +93,7 @@ if (loading) return (
             >
               Popular Ratings
             </h1>
+            <UserSearch currentUserId={userId} />
           </div>
           <div className='ratings-container'>
               <h1 className="loading-text">Loading ratings...</h1>
@@ -128,6 +130,7 @@ if (loading) return (
             >
               Popular Ratings
             </h1>
+            <UserSearch currentUserId={userId} />
           </div>
           <div className='ratings-container'>
           {ratings.length > 0 ? (

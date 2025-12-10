@@ -35,6 +35,14 @@ const userSchema = new mongoose.Schema({
         type: [String],
         default: []
     },
+    top_artists: {
+        type: mongoose.Schema.Types.Mixed,
+        default: []
+    },
+    top_songs: {
+        type: mongoose.Schema.Types.Mixed,
+        default: []
+    },
     bio : {
         type: String,
         default: ''
