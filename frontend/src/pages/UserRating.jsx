@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import Header from "../components/Header";
 import axios from "axios";
 import ReviewModal from "../components/ReviewModal";
 import "../assets/UserRating.css";
@@ -122,6 +123,7 @@ function UserRating() {
 
     return (
         <div className="user-ratings-page">
+            <Header/>
             <div className="ratings-header">
                 <img onClick={() => navigate(username ? `/user/${username}` : '/user')}
                     className="user"
