@@ -9,7 +9,7 @@ export default function AlbumSearch({ accessToken, onAlbumSelect }) {
   const timeoutRef = useRef(null);
   const containerRef = useRef(null);
 
-  // Hide dropdown when clicking outside
+  // hide dropdown when clicking outside
   useEffect(() => {
     function handleClickOutside(e) {
       if (containerRef.current && !containerRef.current.contains(e.target)) {
@@ -20,7 +20,6 @@ export default function AlbumSearch({ accessToken, onAlbumSelect }) {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Debounced Spotify search with caching
   useEffect(() => {
     if (!query.trim()) {
       setResults([]);

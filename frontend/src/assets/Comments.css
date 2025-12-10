@@ -1,3 +1,6 @@
+@import url('https://fonts.googleapis.com/css2?family=Indie+Flower&family=Patrick+Hand&display=swap');
+
+
 .comments-section {
     width: 100%;
     display: flex;
@@ -41,7 +44,9 @@
     flex: 1 1 calc(20% - 2rem); /* 5 per row: 100% / 5 = 20%, minus gap */
     max-width: 250px;            /* keeps sticky note size */
     min-width: 200px;            /* optional for responsiveness */
-    background-image: url('https://www.clker.com/cliparts/S/s/t/M/q/E/sticky-note-pink-md.png'); /* sticky note background */
+    background-image: url('https://www.clker.com/cliparts/S/s/t/M/q/E/sticky-note-pink-md.png'); 
+    /* sticky note background */
+    /* background-image: url('./sticky.png');  */
     background-size: 100% 100%;      
     background-repeat: no-repeat;
     background-position: center;
@@ -61,9 +66,13 @@
     align-items: center;
     flex-wrap: wrap;
     gap: 0.5rem;
+    font-weight: bold;
+    font-size: 1.2rem;
+    font-family: "Indie Flower", "Patrick Hand", cursive;
 }
 
 .comment-username {
+    
     color: #4D2727;
     font-weight: 600;
     font-size: 1rem;
@@ -75,13 +84,17 @@
     opacity: 0.7;
 }
 
+
 .comment-body {
-    color: #4D2727;
-    font-size: 1rem;
+    font-family: "Indie Flower", "Patrick Hand", cursive;
+    font-size: 1.25rem;
     line-height: 1.5;
-    word-wrap: break-word;
+    color: #4D2727;
     white-space: pre-wrap;
+    word-wrap: break-word;
+    transform: rotate(-1deg); 
 }
+
 
 .comment-footer {
     display: flex;
@@ -396,6 +409,8 @@ FaPlus {
     flex-direction:row;
     justify-content:flex-end;
 }
+
+
 
 
 
