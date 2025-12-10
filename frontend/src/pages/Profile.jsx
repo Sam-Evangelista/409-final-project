@@ -39,8 +39,9 @@ function MostListenedAlbums({ spotifyId, fakeAlbums }) {
           setLoading(false);
           return;
         }
-
-        const res = await fetch(`http://127.0.0.1:8000/user/${spotifyId}/top-albums-art`);
+        
+        // const res = await fetch(`http://127.0.0.1:8000/user/${spotifyId}/top-albums-art`);
+        const res = await fetch(`https://recordbackend.vercel.app/user/${spotifyId}/top-albums-art`);
         if (!res.ok) {
           setAlbumUrls([]);
           return;
@@ -132,7 +133,8 @@ function Profile () {
                 // Viewing another user's profile
                 setViewingOtherUser(true);
                 try {
-                    const usersRes = await axios.get(`http://127.0.0.1:8000/user/`);
+                    // const usersRes = await axios.get(`http://127.0.0.1:8000/user/`);
+                    const usersRes = await axios.get(`https://recordbackend.vercel.app/user/`);
                     const targetUser = usersRes.data.find(u => u.username === username);
                     if (targetUser) {
                         setLocalDbUser(targetUser);
@@ -174,7 +176,9 @@ function Profile () {
         }
 
         try {
-            const res = await axios.get(`http://127.0.0.1:8000/user/${localDbUser._id}/${type}`);
+            // https://recordbackend.vercel.app
+            // const res = await axios.get(`http://127.0.0.1:8000/user/${localDbUser._id}/${type}`);
+            const res = await axios.get(`https://recordbackend.vercel.app/user/${localDbUser._id}/${type}`);
             const data = res.data || [];
             // Cache for 5 minutes
             setInCache(cacheKey, data, TTL.MEDIUM);
@@ -343,8 +347,12 @@ function Profile () {
                 if (cachedRatings) {
                     ratingsData = cachedRatings;
                 } else {
+                    
+                    // const ratingsRes = await axios.get(
+                    //     `http://127.0.0.1:8000/ratings/user/${localDbUser.username}`
+                    // );
                     const ratingsRes = await axios.get(
-                        `http://127.0.0.1:8000/ratings/user/${localDbUser.username}`
+                        `https://recordbackend.vercel.app/ratings/user/${localDbUser.username}`
                     );
                     const userRatingsData = ratingsRes.data;
 
@@ -406,7 +414,13 @@ function Profile () {
 
         const fetchCurrentlyPlaying = async () => {
             try {
-                const response = await axios.get('http://127.0.0.1:8000/spotify/currently-playing', {
+                
+                // const response = await axios.get('http://127.0.0.1:8000/spotify/currently-playing', {
+                //     headers: {
+                //         Authorization: `Bearer ${accessToken}`
+                //     }
+                // });
+                const response = await axios.get('https://recordbackend.vercel.app/spotify/currently-playing', {
                     headers: {
                         Authorization: `Bearer ${accessToken}`
                     }
@@ -444,7 +458,9 @@ function Profile () {
                 // If we've reached or exceeded the duration, fetch new track
                 if (newProgress >= currentlyPlaying.durationMs) {
                     // Trigger a refresh to get next track
-                    axios.get('http://127.0.0.1:8000/spotify/currently-playing', {
+                    
+                    // axios.get('http://127.0.0.1:8000/spotify/currently-playing', {
+                    axios.get('https://recordbackend.vercel.app/spotify/currently-playing', {
                         headers: {
                             Authorization: `Bearer ${accessToken}`
                         }

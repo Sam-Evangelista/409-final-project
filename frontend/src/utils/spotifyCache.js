@@ -183,8 +183,13 @@ export async function getTopArtists(accessToken, spotifyId, forceRefresh = false
   }
 
   try {
+    
+    // const res = await axios.get(
+    //   "http://127.0.0.1:8000/spotify/top/artists",
+    //   { headers: { Authorization: `Bearer ${accessToken}` } }
+    // );
     const res = await axios.get(
-      "http://127.0.0.1:8000/spotify/top/artists",
+      "https://recordbackend.vercel.app/spotify/top/artists",
       { headers: { Authorization: `Bearer ${accessToken}` } }
     );
 
@@ -217,11 +222,15 @@ export async function getTopTracks(accessToken, spotifyId, forceRefresh = false)
   }
 
   try {
+    // const res = await axios.get(
+    //   "http://127.0.0.1:8000/spotify/top/tracks",
+    //   { headers: { Authorization: `Bearer ${accessToken}` } }
+    // );
+    
     const res = await axios.get(
-      "http://127.0.0.1:8000/spotify/top/tracks",
+      "https://recordbackend.vercel.app/spotify/top/tracks",
       { headers: { Authorization: `Bearer ${accessToken}` } }
     );
-
     const tracks = res.data.items || [];
     // Cache for 30 minutes - top tracks change infrequently
     setInCache(CACHE_KEYS.topTracks(spotifyId), tracks, TTL.LONG);

@@ -48,7 +48,11 @@ export function UserProvider({ children }) {
     }
 
     try {
-      const res = await axios.get("http://127.0.0.1:8000/spotify/me", {
+      
+      // const res = await axios.get("http://127.0.0.1:8000/spotify/me", {
+      //   headers: { Authorization: `Bearer ${token}` }
+      // });
+      const res = await axios.get("https://recordbackend.vercel.app/spotify/me", {
         headers: { Authorization: `Bearer ${token}` }
       });
 
@@ -93,7 +97,9 @@ export function UserProvider({ children }) {
     }
 
     try {
-      const res = await axios.get(`http://127.0.0.1:8000/user/spotify/${spotifyId}`);
+      
+      // const res = await axios.get(`http://127.0.0.1:8000/user/spotify/${spotifyId}`);
+      const res = await axios.get(`https://recordbackend.vercel.app/user/spotify/${spotifyId}`);
       if (res.data) {
         setDbUser(res.data);
         setInCache(CACHE_KEYS.dbUser(spotifyId), res.data, TTL.MEDIUM);
@@ -121,7 +127,9 @@ export function UserProvider({ children }) {
     }
 
     try {
-      const res = await axios.get(`http://127.0.0.1:8000/user/${mongoId}`);
+      
+      // const res = await axios.get(`http://127.0.0.1:8000/user/${mongoId}`);
+      const res = await axios.get(`https://recordbackend.vercel.app/user/${mongoId}`);
       if (res.data) {
         setInCache(CACHE_KEYS.dbUserById(mongoId), res.data, TTL.MEDIUM);
         // Also cache by Spotify ID if available
@@ -139,7 +147,8 @@ export function UserProvider({ children }) {
   // Update DB user and invalidate cache
   const updateDbUser = useCallback(async (mongoId, updates) => {
     try {
-      const res = await axios.put(`http://127.0.0.1:8000/user/${mongoId}`, updates);
+      // const res = await axios.put(`http://127.0.0.1:8000/user/${mongoId}`, updates);
+      const res = await axios.put(`https://recordbackend.vercel.app/user/${mongoId}`, updates);
       if (res.data) {
         setDbUser(res.data);
         // Update cache
