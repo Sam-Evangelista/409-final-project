@@ -1,5 +1,8 @@
 .App {
   text-align: center;
+  overflow-x: hidden;
+  width: 100%;
+  max-width: 100vw;
 }
 
 .App-container {
@@ -113,7 +116,10 @@ a {
     flex-direction: column;
     align-items: flex-start;
     gap: 1rem;
-    margin-left: 4vw;
+    margin-left: 0;
+    padding: 0 4vw;
+    width: 100%;
+    box-sizing: border-box;
   }
 
   .App-container h1 {
@@ -123,11 +129,16 @@ a {
   .columns {
     flex-direction: column;
     gap: 2rem;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
   }
 
   .column-1,
   .column-2 {
     flex: 1;
+    width: 100%;
+    max-width: 100%;
   }
 
   .rating-alignment {
@@ -139,7 +150,8 @@ a {
 
 @media (max-width: 480px) {
   .App-container {
-    margin-left: 5vw;
+    margin-left: 0;
+    padding: 0 3vw;
   }
 
   .App-container h1 {
