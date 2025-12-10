@@ -257,6 +257,77 @@
     }
 }
 
+@media (max-width: 900px) {
+
+  .review-box {
+    flex-direction: column;
+    align-items: center;
+    gap: 2rem;
+  }
+
+  .right-side {
+    order: -1;              
+    width: 100%;
+    align-items: center;
+  }
+
+  .rater-info {
+    align-self: center;
+    justify-content: center;
+    width: 100%;
+    margin-bottom: 1rem;
+  }
+
+  .left-side {
+    width: 100%;
+    align-items: center;
+  }
+
+  .info {
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    text-align: center;
+  }
+
+  .review-details {
+    align-items: center;
+  }
+
+  .album-box {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .album-img {
+    width: 55vw;
+  }
+
+  .vinyl-img {
+    width: 40vw;
+    left: 0;
+    margin-top: -1.5rem;
+  }
+
+  .review-text-section {
+    width: 90%;
+  }
+
+  .review-tracklist-section {
+    order: 3;
+    width: 90%;
+    margin: 1rem auto;
+    align-self: center;
+  }
+
+  .review-comments-section {
+    width: 100%;
+    margin-top: 2rem;
+  }
+}
+
+
+/* 
 @media (max-width: 480px) {
     .review {
         padding: 15px;
@@ -274,7 +345,7 @@
     }
 
     .album-img {
-        width: 30vw;
+        width: 0vw;
         max-width: 200px;
     }
 
@@ -294,4 +365,4 @@
         font-size: 0.85rem;
         padding: 0.6rem;
     }
-}
+} */
