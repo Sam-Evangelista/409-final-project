@@ -324,7 +324,7 @@
     margin-bottom: 4px;
 }
 
-/* Tablet screens */
+
 @media (max-width: 1024px) {
     .top-columns {
         grid-template-columns: 1fr;
@@ -350,7 +350,7 @@
     }
 }
 
-/* Mobile screens */
+
 @media (max-width: 768px) {
     .top-spacing {
         grid-template-columns: repeat(4, 1fr);
@@ -586,7 +586,6 @@
     justify-content: flex-end;
 }
 
-/* Album Search Styles */
 .album-search-container {
     position: relative;
     padding: 0 16px;

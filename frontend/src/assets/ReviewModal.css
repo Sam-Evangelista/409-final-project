@@ -9,7 +9,7 @@
     justify-content: center;
     align-items: center;
     z-index: 1000;
-    gap: 20px; /* space for arrows outside modal */
+    gap: 20px; 
   }
   
   .modal-content {
@@ -48,13 +48,13 @@
     box-shadow: 0 0 10px rgba(0,0,0,0.3);
   }
   
-  /* Left and right positioning using flex container spacing */
+  
   .left-arrow {
-    order: -1; /* place it to the left of modal-content */
+    order: -1;
   }
   
   .right-arrow {
-    order: 1; /* place it to the right of modal-content */
+    order: 1;
   }
   
   

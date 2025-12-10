@@ -8,7 +8,6 @@
 }
 
 
-/* REVIEW BOX → everything in one row */
 .review-box {
     display: flex;            
     flex-direction: row;      
@@ -71,21 +70,19 @@
 }
 
 
-/* TRACKLIST SECTION → sits on the right */
 .tracklist-section {
     flex: 1;                  
     min-width: 18vw;
 }
 
 
-/* COMMENTS always full width (NOT inside the row) */
+
 .review-comments-section {
     width: 100%;
     margin-top: 1rem;
     display:flex;
     flex-direction:row;
-
-    /*display: block;   */      
+  
 }
 
 .title-box {

@@ -22,30 +22,28 @@
 .shelf-container {
     display: flex;
     flex-direction: column;
-    gap: 30px; /* space between rows */
+    gap: 30px; 
   }
   
-  /* Each shelf row */
+
   .shelf-row {
     position: relative;
     display: flex;
     flex-direction: column;
     align-items: center;
-    min-height: 140px; /* enough for albums + shelf */
+    min-height: 140px;
     gap:0;
   }
   
-  /* Row of albums that wraps */
   .albums {
     display: flex;
-    flex-wrap: wrap;  /* wrap to next line automatically */
+    flex-wrap: wrap;  
     gap: 20px;
     margin-bottom: 10px;
   }
 
   
   
-  /* Shelf itself */
   .shelf {
     position: absolute;
     bottom: 0;
@@ -59,7 +57,7 @@
   
   /* Album items */
   .album-shelf-item {
-    z-index: 1; /* appear above shelf */
+    z-index: 1; 
   }
 
   .album-shelf-item:hover {

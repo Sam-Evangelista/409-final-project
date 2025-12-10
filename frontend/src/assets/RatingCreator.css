@@ -76,7 +76,6 @@
     box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.1);
 }
 
-/* Dropdown styling */
 .album-search-dropdown {
     position: absolute;
     left: 0;
@@ -192,7 +191,7 @@
     border-radius: 30%;
     object-fit: cover;
     align-self: center;
-    margin-top: calc(0.75rem * 2 + 1rem + 2rem); /* back-button padding (top+bottom) + approximate line-height + gap */
+    margin-top: calc(0.75rem * 2 + 1rem + 2rem);
     margin-bottom: 1rem;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
     flex-shrink: 0;
@@ -403,7 +402,6 @@
     color:#4D2727;
 }
 
-/* Responsive adjustments */
 @media (max-width: 1024px) {
     .album-review-view {
         flex-direction: column;

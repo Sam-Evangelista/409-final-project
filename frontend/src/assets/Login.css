@@ -34,5 +34,5 @@
 
 .spotify-img {
     width: 2.5vw;
-    object-fit: contain;   /* prevents squishing */
+    object-fit: contain; 
 }
