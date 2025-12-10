@@ -34,5 +34,79 @@
 
 .spotify-img {
     width: 2.5vw;
-    object-fit: contain; 
+    object-fit: contain;   /* prevents squishing */
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+    .login-box {
+        width: 40vw;
+        height: 35vh;
+    }
+
+    .user-icon {
+        width: 7vw;
+        border-width: 0.5vw;
+        top: -7vw;
+    }
+
+    .spotify-button {
+        width: 15vw;
+        padding: 0.7vw;
+    }
+
+    .spotify-img {
+        width: 3vw;
+    }
+}
+
+@media (max-width: 768px) {
+    .login-box {
+        width: 60vw;
+        height: 40vh;
+        margin-top: 30vh;
+    }
+
+    .user-icon {
+        width: 10vw;
+        border-width: 0.6vw;
+        top: -9vw;
+    }
+
+    .spotify-button {
+        width: 25vw;
+        padding: 1vw;
+        gap: 1.5vw;
+    }
+
+    .spotify-img {
+        width: 4vw;
+    }
+}
+
+@media (max-width: 480px) {
+    .login-box {
+        width: 80vw;
+        height: auto;
+        min-height: 250px;
+        padding: 20px;
+        margin-top: 25vh;
+    }
+
+    .user-icon {
+        width: 60px;
+        border-width: 3px;
+        top: -35px;
+    }
+
+    .spotify-button {
+        width: auto;
+        min-width: 180px;
+        padding: 12px 16px;
+        gap: 10px;
+    }
+
+    .spotify-img {
+        width: 24px;
+    }
 }
