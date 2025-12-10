@@ -164,8 +164,9 @@ function RatingCreator() {
     }
 
     return (
+        <div>
+        <Header/>
         <div className="rating-creator-page">
-            <Header/>
             <div className="rating-creator-container">
                 <h1 className="rating-creator-title">Create Rating</h1>
 
@@ -225,6 +226,7 @@ function RatingCreator() {
                     </div>
                 )}
             </div>
+        </div>
         </div>
     );
 }

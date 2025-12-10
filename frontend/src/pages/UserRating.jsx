@@ -122,8 +122,9 @@ function UserRating() {
     if (loading) return <div className="loading">Loading your ratings...</div>;
 
     return (
-        <div className="user-ratings-page">
+        <div>
             <Header/>
+        <div className="user-ratings-page">
             <div className="ratings-header">
                 <img onClick={() => navigate(username ? `/user/${username}` : '/user')}
                     className="user"
@@ -169,6 +170,7 @@ function UserRating() {
                 isOpen={activeIndex !== null}
                 onClose={() => setActiveIndex(null)}
             />
+        </div>
         </div>
     );
 }
