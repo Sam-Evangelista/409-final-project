@@ -43,7 +43,7 @@ function App() {
           }
 
           // const ratingRes = await axios.get(`http://127.0.0.1:8000/ratings/following/${userId}`);
-          const ratingRes = await axios.get(`http://recordbackend.vercel.app/ratings/following/${userId}`);
+          const ratingRes = await axios.get(`https://recordbackend.vercel.app/ratings/following/${userId}`);
           const following_ratings = ratingRes.data.map(rating => rating._id);
 
           // Cache for 1 minute
@@ -59,7 +59,7 @@ function App() {
           }
 
           // const ratingRes = await axios.get(`http://127.0.0.1:8000/ratings/popular/ratings`);
-          const ratingRes = await axios.get(`http://recordbackend.vercel.app/ratings/popular/ratings`);
+          const ratingRes = await axios.get(`https://recordbackend.vercel.app/ratings/popular/ratings`);
           const all_ratings = ratingRes.data.map(rating => rating._id);
 
           // Cache for 1 minute (ratings change frequently)
