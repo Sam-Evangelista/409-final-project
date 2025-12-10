@@ -20,3 +20,38 @@
     font-size: 16px;
     margin-top: 15px;
 }
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+    .sign-container {
+        width: 40vw;
+        padding: 2rem 1.5rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .sign-container {
+        width: 60vw;
+        padding: 2rem 1.5rem;
+        margin-top: 15vh;
+    }
+
+    .sign-button {
+        font-size: 15px;
+        padding: 9px 18px;
+    }
+}
+
+@media (max-width: 480px) {
+    .sign-container {
+        width: 85vw;
+        padding: 2rem 1rem;
+        margin-top: 10vh;
+    }
+
+    .sign-button {
+        font-size: 14px;
+        padding: 8px 16px;
+        width: 100%;
+    }
+}

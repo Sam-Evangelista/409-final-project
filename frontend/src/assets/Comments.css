@@ -410,7 +410,121 @@ FaPlus {
     justify-content:flex-end;
 }
 
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .comment-item {
+    flex: 1 1 calc(25% - 2rem);
+  }
 
+  .comments-modal-content {
+    width: 450px;
+  }
+
+  .add-modal-content {
+    width: 60%;
+    height: 65%;
+  }
+}
+
+@media (max-width: 768px) {
+  .comments-list {
+    gap: 1.5rem;
+  }
+
+  .comment-item {
+    flex: 1 1 calc(33.333% - 1.5rem);
+    min-width: 180px;
+    height: 220px;
+  }
+
+  .comment-header {
+    font-size: 1.1rem;
+  }
+
+  .comment-body {
+    font-size: 1.15rem;
+  }
+
+  .comment-profile-pic {
+    width: 50px;
+    height: 50px;
+  }
+
+  .comments-modal-content {
+    width: 90%;
+    padding: 1.5rem;
+  }
+
+  .add-modal-content {
+    width: 80%;
+    height: 70%;
+  }
+
+  .new-comment-title {
+    font-size: 1.75rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .comments-list {
+    gap: 1rem;
+    justify-content: center;
+  }
+
+  .comment-item {
+    flex: 1 1 100%;
+    max-width: 220px;
+    min-width: 180px;
+    height: 240px;
+  }
+
+  .comment-header {
+    font-size: 1rem;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .comment-body {
+    font-size: 1.1rem;
+  }
+
+  .comment-profile-pic {
+    width: 45px;
+    height: 45px;
+  }
+
+  .comments-modal-content {
+    width: 95%;
+    padding: 1rem;
+  }
+
+  .add-modal-content {
+    width: 90%;
+    height: 75%;
+    padding: 10px;
+  }
+
+  .new-comment-title {
+    font-size: 1.5rem;
+  }
+
+  .new-comment-text {
+    width: 100%;
+  }
+
+  .submit-comment-btn {
+    width: 20%;
+  }
+
+  .comments-modal-close {
+    top: 0.5rem;
+    right: 0.5rem;
+  }
+
+  .add-modal-close {
+    font-size: 28px;
+  }
+}
 
 
 

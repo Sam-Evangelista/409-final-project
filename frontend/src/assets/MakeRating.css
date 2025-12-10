@@ -13,3 +13,40 @@
     width: 2vw;
     object-fit: contain;
 }
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+    .makerating-box {
+        width: 22vw;
+        gap: 1.8vw;
+    }
+
+    .makerating-box img {
+        width: 2.5vw;
+    }
+}
+
+@media (max-width: 768px) {
+    .makerating-box {
+        width: 28vw;
+        gap: 2vw;
+        padding: 10px;
+    }
+
+    .makerating-box img {
+        width: 3vw;
+    }
+}
+
+@media (max-width: 480px) {
+    .makerating-box {
+        width: auto;
+        min-width: 150px;
+        padding: 12px 16px;
+        gap: 12px;
+    }
+
+    .makerating-box img {
+        width: 24px;
+    }
+}

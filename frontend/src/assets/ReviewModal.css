@@ -56,6 +56,80 @@
   .right-arrow {
     order: 1; /* place it to the right of modal-content */
   }
-  
-  
-  
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .modal-content {
+    width: 85%;
+    height: 85%;
+  }
+
+  .arrow {
+    font-size: 36px;
+    width: 45px;
+    height: 45px;
+  }
+}
+
+@media (max-width: 768px) {
+  .modal-overlay {
+    gap: 10px;
+  }
+
+  .modal-content {
+    width: 90%;
+    height: 90%;
+    padding: 15px;
+  }
+
+  .close-button {
+    font-size: 30px;
+    top: 8px;
+    right: 12px;
+  }
+
+  .arrow {
+    font-size: 32px;
+    width: 40px;
+    height: 40px;
+  }
+}
+
+@media (max-width: 480px) {
+  .modal-overlay {
+    gap: 5px;
+    flex-direction: column;
+  }
+
+  .modal-content {
+    width: 95%;
+    height: 80%;
+    padding: 12px;
+  }
+
+  .close-button {
+    font-size: 28px;
+    top: 5px;
+    right: 8px;
+  }
+
+  .arrow {
+    font-size: 28px;
+    width: 35px;
+    height: 35px;
+    position: static;
+  }
+
+  .left-arrow {
+    order: 0;
+  }
+
+  .right-arrow {
+    order: 2;
+  }
+
+  .modal-content {
+    order: 1;
+  }
+}
+
