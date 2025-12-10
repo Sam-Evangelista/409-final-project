@@ -10,7 +10,7 @@ const client_id = process.env.SPOTIFY_CLIENT_ID;
 const client_secret = process.env.SPOTIFY_CLIENT_SECRET;
 
 // const redirect_uri = 'http://127.0.0.1:8000/spotify/callback';
-const redirect_uri = 'https://recordb.vercel.app/spotify/callback';
+const redirect_uri = 'https://recordbackend.vercel.app/spotify/callback';
 
 function generateRandomString(length) {
   let text = '';
