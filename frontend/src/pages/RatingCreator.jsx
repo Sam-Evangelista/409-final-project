@@ -7,6 +7,7 @@ import axios from "axios";
 import { useNavigate } from 'react-router-dom';
 import { getTracksBatch } from '../utils/spotifyCache';
 import { getFromCache, setInCache, TTL, removeFromCache, clearCacheByPrefix, CACHE_KEYS } from '../utils/cache';
+import Header from "../components/Header";
 
 import '@smastrom/react-rating/style.css';
 
@@ -163,6 +164,8 @@ function RatingCreator() {
     }
 
     return (
+        <div>
+        <Header/>
         <div className="rating-creator-page">
             <div className="rating-creator-container">
                 <h1 className="rating-creator-title">Create Rating</h1>
@@ -223,6 +226,7 @@ function RatingCreator() {
                     </div>
                 )}
             </div>
+        </div>
         </div>
     );
 }

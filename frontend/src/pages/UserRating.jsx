@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import Header from "../components/Header";
 import axios from "axios";
 import ReviewModal from "../components/ReviewModal";
 import "../assets/UserRating.css";
@@ -121,6 +122,8 @@ function UserRating() {
     if (loading) return <div className="loading">Loading your ratings...</div>;
 
     return (
+        <div>
+            <Header/>
         <div className="user-ratings-page">
             <div className="ratings-header">
                 <img onClick={() => navigate(username ? `/user/${username}` : '/user')}
@@ -167,6 +170,7 @@ function UserRating() {
                 isOpen={activeIndex !== null}
                 onClose={() => setActiveIndex(null)}
             />
+        </div>
         </div>
     );
 }

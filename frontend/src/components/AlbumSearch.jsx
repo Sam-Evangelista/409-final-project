@@ -40,7 +40,7 @@ export default function AlbumSearch({ accessToken, onAlbumSelect }) {
 
   return (
     <div ref={containerRef} className="album-search-container">
-      {/* Search Box Container */}
+      {/* Search box container */}
       <div className="album-search-box">
         <input
           type="text"
@@ -52,7 +52,7 @@ export default function AlbumSearch({ accessToken, onAlbumSelect }) {
         />
       </div>
 
-      {/* Dropdown Results */}
+      {/* Dropdown results */}
       {showDropdown && results.length > 0 && (
         <ul className="album-search-dropdown">
           {results.map((album) => (

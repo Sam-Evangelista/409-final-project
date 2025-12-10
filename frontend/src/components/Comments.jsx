@@ -55,7 +55,7 @@ function Comments({ ratingId, commentIds = [], userInfo }) {
 
         try {
             // Call backend to toggle like
-            const response = await axios.patch(`http://127.0.0.1:8000/comments/${id}/like`, {
+            const response = await axios.patch(`https://recordbackend.vercel.app/comments/${id}/like`, {
                 user_id: userInfo._id
             });
             const { likes, isLiked } = response.data;
