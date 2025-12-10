@@ -214,6 +214,12 @@
         gap: 1rem;
     }
 
+    .album-box {
+        flex-direction: column;
+        align-items: center;
+        gap: 1rem;
+    }
+
     .left-side,
     .right-side {
         width: 100%;
@@ -223,15 +229,18 @@
         margin-left: 0;
     }
 
+    .review-details {
+        align-items: center;
+        text-align: center;
+    }
+
     .album-img {
-        width: 30vw;
-        max-width: 200px;
+        width: 50vw;
+        max-width: 250px;
     }
 
     .vinyl-img {
-        width: 24vw;
-        max-width: 160px;
-        left: -12vw;
+        display: none;
     }
 
     .rater-img {
@@ -261,17 +270,12 @@
     }
 
     .album-box {
-        flex-direction: column;
-        gap: 0;
+        gap: 0.5rem;
     }
 
     .album-img {
-        width: 50vw;
-        max-width: 180px;
-    }
-
-    .vinyl-img {
-        display: none;
+        width: 60vw;
+        max-width: 200px;
     }
 
     .rater-img {
