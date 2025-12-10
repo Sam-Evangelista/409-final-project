@@ -122,6 +122,8 @@ router.get('/rating/:ratingId', async (req, res) => {
         if (!rating)
             return res.status(404).json({ message: "Rating not found" });
 
+        const userId = req.query.user_id; // Optional user ID to check if they liked
+
         const comments = await Comment.find({ _id: { $in: rating.comments } })
             .populate("user_id", "username icon");
 
@@ -132,7 +134,8 @@ router.get('/rating/:ratingId', async (req, res) => {
             comment_body: c.comment_body,
             likes: c.likes,
             date: c.date,
-            child_comments: [] // replies loaded separately
+            child_comments: [], // replies loaded separately
+            isLiked: userId ? c.liked_by.some(id => id.toString() === userId.toString()) : false
         }));
 
         res.json(formatted);
@@ -189,6 +192,8 @@ router.get("/:id/replies", async (req, res) => {
         if (!parent)
             return res.status(404).json({ message: "Parent comment not found" });
 
+        const userId = req.query.user_id; // Optional user ID to check if they liked
+
         const replies = await Comment.find({ _id: { $in: parent.child_comments } })
             .populate("user_id", "username icon"); // ⬅ important
 
@@ -198,7 +203,8 @@ router.get("/:id/replies", async (req, res) => {
             icon: r.user_id.icon,
             comment_body: r.comment_body,
             likes: r.likes,
-            date: r.date
+            date: r.date,
+            isLiked: userId ? r.liked_by.some(id => id.toString() === userId.toString()) : false
         }));
 
         res.json(formatted);
@@ -213,9 +219,28 @@ router.get("/:id/replies", async (req, res) => {
 //updating likes for comment
 router.patch('/:id/like', getComment, async (req, res) => {
     try {
-        res.comment.likes += 1; // increment likes by 1
-        await res.comment.save();
-        res.json({ likes: res.comment.likes });
+        const { user_id } = req.body;
+
+        if (!user_id) {
+            return res.status(400).json({ message: 'user_id is required' });
+        }
+
+        // Check if user already liked this comment
+        const alreadyLiked = res.comment.liked_by.includes(user_id);
+
+        if (alreadyLiked) {
+            // Unlike - remove user from liked_by array and decrement likes
+            res.comment.liked_by = res.comment.liked_by.filter(id => id.toString() !== user_id.toString());
+            res.comment.likes = Math.max(0, res.comment.likes - 1);
+            await res.comment.save();
+            res.json({ likes: res.comment.likes, isLiked: false });
+        } else {
+            // Like - add user to liked_by array and increment likes
+            res.comment.liked_by.push(user_id);
+            res.comment.likes += 1;
+            await res.comment.save();
+            res.json({ likes: res.comment.likes, isLiked: true });
+        }
     } catch (err) {
         res.status(500).json({ message: err.message });
     }

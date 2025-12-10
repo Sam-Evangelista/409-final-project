@@ -30,7 +30,16 @@ router.get('/', async(req, res) => {
 
 // Getting one
 router.get('/:id', getRating, (req, res) => {
-    res.json(res.rating)
+    const userId = req.query.user_id;
+
+    const ratingData = res.rating.toObject();
+
+    // Add isLiked if user_id is provided
+    if (userId) {
+        ratingData.isLiked = res.rating.liked_by.some(id => id.toString() === userId.toString());
+    }
+
+    res.json(ratingData);
 })
 
 
@@ -176,6 +185,36 @@ router.get('/following/:userId', async (req, res) => {
             .limit(limit);
 
         res.json(followingRatings);
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+});
+
+// Like/Unlike a rating
+router.patch('/:id/like', getRating, async (req, res) => {
+    try {
+        const { user_id } = req.body;
+
+        if (!user_id) {
+            return res.status(400).json({ message: 'user_id is required' });
+        }
+
+        // Check if user already liked this rating
+        const alreadyLiked = res.rating.liked_by.includes(user_id);
+
+        if (alreadyLiked) {
+            // Unlike - remove user from liked_by array and decrement likes
+            res.rating.liked_by = res.rating.liked_by.filter(id => id.toString() !== user_id.toString());
+            res.rating.likes = Math.max(0, res.rating.likes - 1);
+            await res.rating.save();
+            res.json({ likes: res.rating.likes, isLiked: false });
+        } else {
+            // Like - add user to liked_by array and increment likes
+            res.rating.liked_by.push(user_id);
+            res.rating.likes += 1;
+            await res.rating.save();
+            res.json({ likes: res.rating.likes, isLiked: true });
+        }
     } catch (err) {
         res.status(500).json({ message: err.message });
     }

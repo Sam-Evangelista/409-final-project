@@ -30,6 +30,11 @@ const ratingSchema = new mongoose.Schema({
         type: Number,
         default: 0
     },
+    liked_by: {
+        type: [mongoose.Schema.Types.ObjectId],
+        ref: 'User',
+        default: []
+    },
     stars: {
         type: Number,
         required: true,

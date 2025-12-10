@@ -45,8 +45,17 @@ function Review({ ratingId, userId }) {
           }
 
           // Fetch rating data
-          const ratingRes = await axios.get(`http://127.0.0.1:8000/ratings/${ratingId}`);
+          const ratingUrl = userId
+            ? `http://127.0.0.1:8000/ratings/${ratingId}?user_id=${userId}`
+            : `http://127.0.0.1:8000/ratings/${ratingId}`;
+
+          const ratingRes = await axios.get(ratingUrl);
           setRating(ratingRes.data);
+
+          // Set initial liked state
+          if (ratingRes.data.isLiked !== undefined) {
+            setLiked(ratingRes.data.isLiked);
+          }
 
           // Fetch rating author info with caching
           if (ratingRes.data.user_id) {
@@ -71,7 +80,7 @@ function Review({ ratingId, userId }) {
             const trackData = tracksData.map(t => ({
               id: t.id,
               name: t.name,
-              duration: t.duration_ms
+              duration_ms: t.duration_ms
             }));
             setTracks(trackData);
           }
@@ -89,27 +98,39 @@ function Review({ ratingId, userId }) {
       
 
     const handleLikes = async () => {
+      if (!userId) {
+        console.error('User must be logged in to like');
+        return;
+      }
+
       try {
         // Optimistic UI update for smoothness
+        const wasLiked = liked;
         setLiked(prev => !prev);
         setRating(prev => ({
           ...prev,
-          likes: prev.likes + (liked ? -1 : 1),
+          likes: prev.likes + (wasLiked ? -1 : 1),
         }));
-  
-        //need to call backend endpoint to update rating with a like
 
-        const res = {
-          isLiked: true,
-          likes: 2
-        }
-  
+        // Call backend endpoint to toggle like
+        const response = await axios.patch(`http://127.0.0.1:8000/ratings/${ratingId}/like`, {
+          user_id: userId
+        });
+
+        const { likes, isLiked } = response.data;
+
         // Update with actual backend values
-        setLiked(res.isLiked);
-        setRating(prev => ({ ...prev, likes: res.likes }));
-  
+        setLiked(isLiked);
+        setRating(prev => ({ ...prev, likes }));
+
       } catch (error) {
         console.error("Error liking review:", error);
+        // Revert optimistic update on error
+        setLiked(!liked);
+        setRating(prev => ({
+          ...prev,
+          likes: prev.likes + (liked ? 1 : -1),
+        }));
       }
     };
 

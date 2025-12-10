@@ -24,8 +24,11 @@ function Comments({ ratingId, commentIds = [], userInfo }) {
 
         const fetchData = async () => {
             try {
-    
-            const commentRes = await axios.get(`http://127.0.0.1:8000/comments/rating/${ratingId}`);
+            const url = userInfo?._id
+                ? `http://127.0.0.1:8000/comments/rating/${ratingId}?user_id=${userInfo._id}`
+                : `http://127.0.0.1:8000/comments/rating/${ratingId}`;
+
+            const commentRes = await axios.get(url);
             const commentData = commentRes.data;
             setComments(commentData);
             } catch (error) {
@@ -34,35 +37,42 @@ function Comments({ ratingId, commentIds = [], userInfo }) {
                 setLoading(false);
             }
           };
-      
+
         fetchData();
-    }, [commentIds, ratingId]);
+    }, [commentIds, ratingId, userInfo?._id]);
 
 
 
     const handleLike = async (id, isChild = false) => {
+        if (!userInfo?._id) {
+            console.error('User must be logged in to like');
+            return;
+        }
+
         try {
-            // Call backend to increment likes
-            const response = await axios.patch(`http://127.0.0.1:8000/comments/${id}/like`);
-            const updatedLikes = response.data.likes;
-    
+            // Call backend to toggle like
+            const response = await axios.patch(`http://127.0.0.1:8000/comments/${id}/like`, {
+                user_id: userInfo._id
+            });
+            const { likes, isLiked } = response.data;
+
             // Update state locally
             setComments(prev =>
                 prev.map(comment => {
                     if (!isChild) {
                         if (comment._id === id) {
-                            return { ...comment, isLiked: true, likes: updatedLikes };
+                            return { ...comment, isLiked, likes };
                         }
                         return comment;
                     }
-    
+
                     const updatedChildren = comment.child_comments.map(child => {
                         if (child._id === id) {
-                            return { ...child, isLiked: true, likes: updatedLikes };
+                            return { ...child, isLiked, likes };
                         }
                         return child;
                     });
-    
+
                     return { ...comment, child_comments: updatedChildren };
                 })
             );
@@ -78,21 +88,22 @@ function Comments({ ratingId, commentIds = [], userInfo }) {
         setModalOpen(true);
     
         const parentId = comments[index]._id;
-    
+
         try {
-            const response = await axios.get(`http://127.0.0.1:8000/comments/${parentId}/replies`);
+            const url = userInfo?._id
+                ? `http://127.0.0.1:8000/comments/${parentId}/replies?user_id=${userInfo._id}`
+                : `http://127.0.0.1:8000/comments/${parentId}/replies`;
+
+            const response = await axios.get(url);
             const replies = response.data;
-    
+
             // Inject replies into that comment
             setComments(prev =>
                 prev.map((c, i) => {
                     if (i === index) {
-                        return { 
-                            ...c, 
-                            child_comments: replies.map(r => ({
-                                ...r,
-                                isLiked: false // frontend-only state
-                            }))
+                        return {
+                            ...c,
+                            child_comments: replies
                         };
                     }
                     return c;
