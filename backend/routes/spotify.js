@@ -106,7 +106,7 @@ router.get('/callback', async (req, res) => {
     // get top albums when logging in
     const topTracks = await new Promise((resolve, reject) => {
       const options = {
-        url: 'https://api.spotify.com/v1/me/top/tracks?limit=20&time_range=medium_term',
+        url: 'https://api.spotify.com/v1/me/top/tracks?limit=5&time_range=short_term',
         headers: {
           Authorization: 'Bearer ' + access_token
         },
@@ -281,7 +281,7 @@ router.get('/recently-played', (req, res) => {
   }
 
   const options = {
-    url: 'https://api.spotify.com/v1/me/player/recently-played?limit=20',
+    url: 'https://api.spotify.com/v1/me/player/recently-played?limit=5',
     headers: {
       Authorization: 'Bearer ' + access_token
     },
