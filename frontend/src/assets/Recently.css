@@ -70,3 +70,28 @@
     margin: 20px 0;
     text-align: center;
 }
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .recent-img {
+        width: 30vw;
+        min-width: 100px;
+    }
+
+    .recent-album-info {
+        max-width: 30vw;
+        min-width: 100px;
+    }
+
+    .recent-album-name {
+        font-size: 0.8rem;
+    }
+
+    .recent-album-artist {
+        font-size: 0.7rem;
+    }
+
+    .img-box {
+        gap: 15px;
+    }
+}
