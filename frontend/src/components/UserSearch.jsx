@@ -35,13 +35,17 @@ export default function UserSearch({ currentUserId }) {
     timeoutRef.current = setTimeout(async () => {
       try {
         console.log("Searching for:", query);
-        const response = await axios.get(`http://127.0.0.1:8000/user/search/${encodeURIComponent(query)}`);
+        
+        // const response = await axios.get(`http://127.0.0.1:8000/user/search/${encodeURIComponent(query)}`);
+        const response = await axios.get(`https://recordbackend.vercel.app/user/search/${encodeURIComponent(query)}`);
         console.log("Search results:", response.data);
 
         // Check if current user is following each result
         let resultsWithFollowStatus = response.data;
         if (currentUserId) {
-          const currentUserRes = await axios.get(`http://127.0.0.1:8000/user/${currentUserId}`);
+          
+          // const currentUserRes = await axios.get(`http://127.0.0.1:8000/user/${currentUserId}`);
+          const currentUserRes = await axios.get(`https://recordbackend.vercel.app/user/${currentUserId}`);
           const followingIds = currentUserRes.data.following.map(f => f._id || f);
 
           resultsWithFollowStatus = response.data.map(user => ({
@@ -76,7 +80,12 @@ export default function UserSearch({ currentUserId }) {
     try {
       if (isCurrentlyFollowing) {
         // Unfollow
-        await axios.post('http://127.0.0.1:8000/user/unfollow', {
+        
+        // await axios.post('http://127.0.0.1:8000/user/unfollow', {
+        //   userId: currentUserId,
+        //   targetId: targetUserId
+        // });
+        await axios.post('https://recordbackend.vercel.app/user/unfollow', {
           userId: currentUserId,
           targetId: targetUserId
         });
@@ -85,7 +94,12 @@ export default function UserSearch({ currentUserId }) {
         ));
       } else {
         // Follow
-        await axios.post('http://127.0.0.1:8000/user/follow', {
+        
+        // await axios.post('http://127.0.0.1:8000/user/follow', {
+        //   userId: currentUserId,
+        //   targetId: targetUserId
+        // });
+        await axios.post('https://recordbackend.vercel.app/user/follow', {
           userId: currentUserId,
           targetId: targetUserId
         });

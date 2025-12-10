@@ -28,7 +28,9 @@ function UserRating() {
                 setTargetUsername(username);
                 // Fetch the target user's data
                 try {
-                    const usersRes = await axios.get(`http://127.0.0.1:8000/user/`);
+                    
+                    // const usersRes = await axios.get(`http://127.0.0.1:8000/user/`);
+                    const usersRes = await axios.get(`https://recordbackend.vercel.app/user/`);
                     const foundUser = usersRes.data.find(u => u.username === username);
                     if (foundUser) {
                         setTargetUser(foundUser);
@@ -61,8 +63,12 @@ function UserRating() {
                     return;
                 }
 
+                
+                // const ratingsRes = await axios.get(
+                //     `http://127.0.0.1:8000/ratings/user/${targetUsername}`
+                // );
                 const ratingsRes = await axios.get(
-                    `http://127.0.0.1:8000/ratings/user/${targetUsername}`
+                    `https://recordbackend.vercel.app/ratings/user/${targetUsername}`
                 );
 
                 const userRatings = ratingsRes.data;

@@ -28,7 +28,9 @@ function RatingCreator() {
     useEffect(() => {
         if (!ACCESS_TOKEN) return;
 
-        axios.get("http://127.0.0.1:8000/spotify/me", {
+        
+        // axios.get("http://127.0.0.1:8000/spotify/me", {
+        axios.get("https://recordbackend.vercel.app/spotify/me", {
             headers: { Authorization: `Bearer ${ACCESS_TOKEN}` }
         })
         .then(res => setUser(res.data))
@@ -38,8 +40,9 @@ function RatingCreator() {
     // Fetch MongoDB _id using Spotify ID
     useEffect(() => {
         if (!spotifyId) return;
-
-        axios.get(`http://127.0.0.1:8000/user/spotify/${spotifyId}`)
+        
+        // axios.get(`http://127.0.0.1:8000/user/spotify/${spotifyId}`)
+        axios.get(`https://recordbackend.vercel.app/user/spotify/${spotifyId}`)
             .then(res => setMongoId(res.data._id))
             .catch(err => console.error("Error getting MongoDB user:", err));
     }, [spotifyId]);
@@ -113,7 +116,9 @@ function RatingCreator() {
         const trackNames = tracks.map(track => track.name);
 
         try {
-            const response = await axios.post('http://127.0.0.1:8000/ratings/', {
+            
+            // const response = await axios.post('http://127.0.0.1:8000/ratings/', {
+            const response = await axios.post('https://recordbackend.vercel.app/ratings/', {
                 user_id: mongoId, // use MongoDB _id here
                 username: user.display_name || user.username || 'Unknown User',
                 album: selectedAlbum.name,

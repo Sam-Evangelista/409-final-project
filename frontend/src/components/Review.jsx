@@ -44,10 +44,13 @@ function Review({ ratingId, userId }) {
           }
 
           // Fetch rating data
+          // https://recordbackend.vercel.app
+          // const ratingUrl = userId
+          //   ? `http://127.0.0.1:8000/ratings/${ratingId}?user_id=${userId}`
+          //   : `http://127.0.0.1:8000/ratings/${ratingId}`;
           const ratingUrl = userId
-            ? `http://127.0.0.1:8000/ratings/${ratingId}?user_id=${userId}`
-            : `http://127.0.0.1:8000/ratings/${ratingId}`;
-
+            ? `https://recordbackend.vercel.app/ratings/${ratingId}?user_id=${userId}`
+            : `https://recordbackend.vercel.app/ratings/${ratingId}`;
           const ratingRes = await axios.get(ratingUrl);
           setRating(ratingRes.data);
 
@@ -108,7 +111,11 @@ function Review({ ratingId, userId }) {
         }));
 
         // Call backend endpoint to toggle like
-        const response = await axios.patch(`http://127.0.0.1:8000/ratings/${ratingId}/like`, {
+        
+        // const response = await axios.patch(`http://127.0.0.1:8000/ratings/${ratingId}/like`, {
+        //   user_id: userId
+        // });
+        const response = await axios.patch(`https://recordbackend.vercel.app/ratings/${ratingId}/like`, {
           user_id: userId
         });
 

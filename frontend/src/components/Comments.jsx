@@ -24,9 +24,13 @@ function Comments({ ratingId, commentIds = [], userInfo }) {
 
         const fetchData = async () => {
             try {
+                
+            // const url = userInfo?._id
+            //     ? `http://127.0.0.1:8000/comments/rating/${ratingId}?user_id=${userInfo._id}`
+            //     : `http://127.0.0.1:8000/comments/rating/${ratingId}`;
             const url = userInfo?._id
-                ? `http://127.0.0.1:8000/comments/rating/${ratingId}?user_id=${userInfo._id}`
-                : `http://127.0.0.1:8000/comments/rating/${ratingId}`;
+                ? `https://recordbackend.vercel.app/comments/rating/${ratingId}?user_id=${userInfo._id}`
+                : `https://recordbackend.vercel.app/comments/rating/${ratingId}`;
 
             const commentRes = await axios.get(url);
             const commentData = commentRes.data;
@@ -90,9 +94,13 @@ function Comments({ ratingId, commentIds = [], userInfo }) {
         const parentId = comments[index]._id;
 
         try {
+            // recordbackend.vercel.app
+            // const url = userInfo?._id
+            //     ? `http://127.0.0.1:8000/comments/${parentId}/replies?user_id=${userInfo._id}`
+            //     : `http://127.0.0.1:8000/comments/${parentId}/replies`;
             const url = userInfo?._id
-                ? `http://127.0.0.1:8000/comments/${parentId}/replies?user_id=${userInfo._id}`
-                : `http://127.0.0.1:8000/comments/${parentId}/replies`;
+                ? `https://recordbackend.vercel.app/comments/${parentId}/replies?user_id=${userInfo._id}`
+                : `https://recordbackend.vercel.app/comments/${parentId}/replies`;
 
             const response = await axios.get(url);
             const replies = response.data;
@@ -127,12 +135,17 @@ function Comments({ ratingId, commentIds = [], userInfo }) {
         if (!text.trim()) return;
     
         try {
-            const response = await axios.post('http://127.0.0.1:8000/comments/', {
+            
+            // const response = await axios.post('http://127.0.0.1:8000/comments/', {
+            //     user_id: userInfo._id,
+            //     rating_id: ratingId,
+            //     comment_body: text
+            // });
+            const response = await axios.post('https://recordbackend.vercel.app/comments/', {
                 user_id: userInfo._id,
                 rating_id: ratingId,
                 comment_body: text
             });
-    
             const savedComment = response.data;
     
             setComments(prev => [...prev, {
@@ -152,7 +165,12 @@ function Comments({ ratingId, commentIds = [], userInfo }) {
         const parentComment = comments[activeIndex];
     
         try {
-            const response = await axios.post(`http://127.0.0.1:8000/comments/${parentComment._id}/reply`, {
+            // recordbackend.vercel.app
+            // const response = await axios.post(`http://127.0.0.1:8000/comments/${parentComment._id}/reply`, {
+            //     user_id: userInfo._id,
+            //     comment_body: text
+            // });
+            const response = await axios.post(`https://recordbackend.vercel.app/comments/${parentComment._id}/reply`, {
                 user_id: userInfo._id,
                 comment_body: text
             });

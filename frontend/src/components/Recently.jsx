@@ -22,7 +22,13 @@ function Recently() {
             }
 
             try {
-                const response = await axios.get('http://127.0.0.1:8000/spotify/recently-played', {
+                
+                // const response = await axios.get('http://127.0.0.1:8000/spotify/recently-played', {
+                //     headers: {
+                //         Authorization: `Bearer ${token}`
+                //     }
+                // });
+                const response = await axios.get('https://recordbackend.vercel.app/spotify/recently-played', {
                     headers: {
                         Authorization: `Bearer ${token}`
                     }

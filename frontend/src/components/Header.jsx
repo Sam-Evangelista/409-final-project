@@ -18,7 +18,9 @@ function Header () {
             </Link>
 
             <Link to='/home'>
-                <h1>RecorDB</h1>
+                <h1 className="header-title">
+                    RecorDB
+                </h1>
             </Link>
 
             <div className='header-right'>
